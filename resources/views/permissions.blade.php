@@ -19,10 +19,11 @@
                         <table class="table table-bordered table-responsive-lg">
                             <tr>
                                 <th>User</th>
-                                <th>Housing</th>
-                                <th>Create Client</th>
-                                <th>Medication</th>
                                 <th>Create User</th>
+                                <th>Create Store Schedule</th>
+                                <th>Create Warehouse Schedule</th>
+								<th>Approve Schedule</th>
+								<th>View All Schedule</th>
                             </tr>
 
                             @foreach ($users as $user)
@@ -31,25 +32,30 @@
                                         {{ $user->firstname }} {{ $user->lastname }}
                                     </td>
                                     
-                                    <td>
-                                        <input type="checkbox" id="housing_{{$user->id}}" name="housing_{{$user->id}}" 
-                                            @if($user->housing) Checked @endif 
-                                            value="1">       
-                                    </td>
-
-                                    <td>
-                                        <input type="checkbox" id="create_client_{{$user->id}}" name="create_client_{{$user->id}}" 
-                                            @if($user->create_client) Checked @endif 
-                                            value="1">       
-                                    </td>
-                                    <td>
-                                        <input type="checkbox" id="medication_{{$user->id}}" name="medication_{{$user->id}}" 
-                                            @if($user->medication) Checked @endif 
-                                            value="1">       
-                                    </td>
-                                    <td>
+									<td>
                                         <input type="checkbox" id="create_user_{{$user->id}}" name="create_user_{{$user->id}}" 
                                             @if($user->create_user) Checked @endif 
+                                            value="1">       
+                                    </td>  
+
+                                    <td>
+                                        <input type="checkbox" id="create_store_schedule_{{$user->id}}" name="create_store_schedule_{{$user->id}}" 
+                                            @if($user->create_store_schedule) Checked @endif 
+                                            value="1">       
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" id="create_warehouse_schedule_{{$user->id}}" name="create_warehouse_schedule_{{$user->id}}" 
+                                            @if($user->create_warehouse_schedule) Checked @endif 
+                                            value="1">       
+                                    </td>
+									 <td>
+                                        <input type="checkbox" id="approve_schedule_{{$user->id}}" name="approve_schedule_{{$user->id}}" 
+                                            @if($user->approve_schedule) Checked @endif 
+                                            value="1">       
+                                    </td>
+                                     <td>
+                                        <input type="checkbox" id="view_all_schedules_{{$user->id}}" name="view_all_schedules_{{$user->id}}" 
+                                            @if($user->view_all_schedules) Checked @endif 
                                             value="1">       
                                     </td>
                                     
