@@ -34,8 +34,12 @@ Auth::routes();   // To make  Auth::middleware available. We still need to use  
 				  
 Route::get('/changePassword',[ChangePasswordController::class,'index'])->name('changePassword');	
 
-Route::post('/createUser',[UserController::class,'create'])->name('user.create');	
 
+// users routes
+Route::post('/createUser',[UserController::class,'create'])->name('user.create');	
+Route::get('/userList',[UserController::class,'index'])->name('user.list');	
+Route::get('/editUser',[UserController::class,'edit'])->name('user.edit');	
+Route::post('/updateUser',[UserController::class,'update'])->name('user.update');	
 		  
 /*				  
  NOTE: To make a middleware applicable to all controller, specifiy this in 
@@ -67,5 +71,5 @@ Route::get('/notAuthorized', function(){
 Route::get('/permission',[PermissionController::class,'index'])->name('permission.index');
 Route::post('/permission',[PermissionController::class,'store'])->name('permission.store');  // update permissions data
 
-
+Route::get('/task/create',[TaskController::class,'create'])->name('task.create');
 

@@ -85,8 +85,13 @@
                             <li class="nav-item dropdown">
                                 <a href="{{ route('home')}}" class="nav-link">Home</a>
                             </li>
-
-                           
+							
+							@can('create_user')
+								 <li class="nav-item dropdown">
+									<a href="{{ route('user.list')}}" class="nav-link">Manage Users</a>
+								</li>
+							@endcan
+                            
 
                            
                             <li class="nav-item dropdown">
@@ -114,10 +119,12 @@
 
 
                                     @if (Route::has('register')) 
-                                        @can('Permission')
+                                        @can('create_user')
                                             <a class="dropdown-item" href="{{ route('register') }}">Create User</a>
                                         @endcan
                                     @endif
+									
+									
 
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                         @csrf

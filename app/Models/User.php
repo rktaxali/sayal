@@ -49,4 +49,17 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+	
+	
+	public static function getStoreCodes()
+	{
+		$query = "SELECT id, `name` AS text
+								FROM stores 
+				UNION 
+					SELECT '', '-- Select --' 
+				ORDER BY 1";
+		return   DB::select( DB::raw($query));  
+
+	}
+	
 }
