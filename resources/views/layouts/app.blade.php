@@ -92,6 +92,11 @@
 								</li>
 							@endcan
                             
+							@can('create_store_schedule')
+								 <li class="nav-item dropdown">
+									<a href="{{ route('schedule.index')}}" class="nav-link">Schedules</a>
+								</li>
+							@endcan
 
                            
                             <li class="nav-item dropdown">

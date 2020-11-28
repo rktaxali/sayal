@@ -9,6 +9,9 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FullCalendarEventMasterController;
 use App\Http\Controllers\ChangePasswordController;
+use App\Http\Controllers\ScheduleController;
+
+
 use App\Http\Controllers\TaskController;
 
 
@@ -72,4 +75,10 @@ Route::get('/permission',[PermissionController::class,'index'])->name('permissio
 Route::post('/permission',[PermissionController::class,'store'])->name('permission.store');  // update permissions data
 
 Route::get('/task/create',[TaskController::class,'create'])->name('task.create');
+
+// Schedules
+Route::get('/schedule',[ScheduleController::class,'index'])->name('schedule.index');
+Route::post('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.edit');
+Route::post('/createSchedule',[ScheduleController::class,'createSchedule'])->name('schedule.create');
+
 

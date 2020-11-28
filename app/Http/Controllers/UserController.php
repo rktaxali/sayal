@@ -92,15 +92,16 @@ class UserController extends Controller
 	  */
 	 protected function update(Request $request)
     {
-		 $request->validate([
+		$id = session()->get('user_id');
+		$request->validate([
              'firstname' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
-         //   'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users')->ignore($id)],
 		    "min_hours" => ["required", new minHoursRule(),  new maxHoursRule() ],
             "max_hours" => ["required", new HoursRule($request->min_hours), new minHoursRule(),  new maxHoursRule() ],
 
         ]);
-		$id = session()->get('user_id');
+		
 		
 		$user = User::find($id);
 
