@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
 use Illuminate\Support\Facades\DB;
+use Redirect,Response;
 
 
 class ScheduleController extends Controller
@@ -41,9 +42,38 @@ class ScheduleController extends Controller
 			session()->put('schedule_id', $schedule_id);  
 			// fetch data from all active employees for all days for the selcted schedules 
 			
-			$scheduleObject = Schedule::where('id','=',$schedule_id)->get()->first();
-			$schedule_date = $scheduleObject->start_date;
-			dd($schedule_date);
+			// display all active employees and an Add/Edit button 
+			$query = "SELECT u.id as user_id, concat(u.firstname, ' ', u.lastname) AS name, '' as schedule, COUNT(s.id) AS howmany
+						FROM users u
+						LEFT JOIN employee_schedules s ON u.id = s.user_id AND s.schedule_id = $schedule_id
+						WHERE u.`status` = 'active'
+						GROUP BY u.id, 2,3";
+			$scheduleDetails = DB::select($query);
+			if ($scheduleDetails)
+			{
+				// get employee_schedules data for each employee for the current schedule_id
+				$query = "SELECT user_id, GROUP_CONCAT(' ',s.date, ': ', left(s.start_time,5), '-' ,left(s.end_time,5), ' ', st.name ) AS empl_schedule
+						FROM employee_schedules s
+						LEFT JOIN stores st ON s.store_id = st.id
+						WHERE s.schedule_id = 1
+						GROUP BY s.user_id";
+				$result= DB::select($query);
+				$array = (array)$result;
+				$schArray=[];
+				// convert $result into an associative array with user_id as key
+				foreach ($array as $key=>$val)
+				{
+					$schArray[$val->user_id] = $val->empl_schedule;
+				}
+	
+				// Update $scheduleDetails->schedule from $schArray
+				for($i=0; $i< count($scheduleDetails); $i++)
+				{
+					$scheduleDetails[$i]->schedule = (! empty($schArray[$scheduleDetails[$i]->user_id]))  ? $schArray[$scheduleDetails[$i]->user_id] : '';
+				}
+			}
+			//dd($scheduleDetails);
+			return view('scheduleDetails',compact('scheduleDetails'));
 			
 		}
 	}
@@ -94,6 +124,12 @@ class ScheduleController extends Controller
 				->with('success','New Schedule Created Successfully');
 			
 		}
+	}
+	
+	
+	public function userScheduleBasicData(Request $request) 
+	{
+		return Response::json($request);
 	}
 	
 	

@@ -80,5 +80,7 @@ Route::get('/task/create',[TaskController::class,'create'])->name('task.create')
 Route::get('/schedule',[ScheduleController::class,'index'])->name('schedule.index');
 Route::post('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.edit');
 Route::post('/createSchedule',[ScheduleController::class,'createSchedule'])->name('schedule.create');
+Route::post('/userScheduleBasicData',[ScheduleController::class,'userScheduleBasicData'])->name('user.scheduleBasicData');	
+
 
 
