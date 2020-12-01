@@ -20,8 +20,8 @@ class ScheduleController extends Controller
 	{
 		if(auth()->user()->hasPermissionTo('create_store_schedule'))
         {
+			
 			$schedules = Schedule::all();
-			//dd($schedules);
 			return view('schedule',compact('schedules'));
 		}
 	}
@@ -37,6 +37,7 @@ class ScheduleController extends Controller
 	{
 		if(auth()->user()->hasPermissionTo('create_store_schedule'))
         {
+			$stores = UserController::getStoreCodes();
 			$schedule_id = $request->schedule_id;
 			// save $schedule_id for use at the time of saving data 
 			session()->put('schedule_id', $schedule_id);  
@@ -72,8 +73,9 @@ class ScheduleController extends Controller
 					$scheduleDetails[$i]->schedule = (! empty($schArray[$scheduleDetails[$i]->user_id]))  ? $schArray[$scheduleDetails[$i]->user_id] : '';
 				}
 			}
-			//dd($scheduleDetails);
-			return view('scheduleDetails',compact('scheduleDetails'));
+			
+			$scheduleDays = $this->getScheduleDays();
+			return view('scheduleDetails',compact('scheduleDetails','stores','scheduleDays'));
 			
 		}
 	}
@@ -129,9 +131,35 @@ class ScheduleController extends Controller
 	
 	public function userScheduleBasicData(Request $request) 
 	{
-		return Response::json($request);
+		$schedule_id = session()->get('schedule_id');
+		$user_id =  $request->user_id;
+		$query = "SELECT `name`, u.store_id, sd.date, d.day_abbr
+				FROM users u 
+				INNER JOIN schedule_dates sd ON sd.schedule_id = '$schedule_id'
+				INNER JOIN days d ON sd.day_id = d.id 
+				WHERE u.id = '$user_id'";
+		$emplSchedule =  DB::select( DB::raw($query)); 		
+		
+		
+		
+		// get basic data for the user and schedule_id 
+		
+		return Response::json($emplSchedule);
 	}
 	
+	
+	// get date and day_abbr for the current schedule
+	public function getScheduleDays() 
+	{
+		$schedule_id = session()->get('schedule_id');
+		$query = "SELECT d.id as day_id, sd.date, d.day_abbr
+				FROM  schedule_dates sd 
+				INNER JOIN days d ON sd.day_id = d.id 
+				WHERE sd.schedule_id = '$schedule_id'";
+		$scheduleDays =  DB::select( DB::raw($query)); 		
+		return $scheduleDays;
+	
+	}
 	
 	
 	

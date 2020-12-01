@@ -33,73 +33,112 @@
 			<div class="modal-header">
 				<h5 class="modal-title" id="modelCreateEventLabel">Create Schedule for <span id="createUserName"></span> </h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				
-				<span aria-hidden="true">&times;</span>
+					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
+			
+			
 			<div class="modal-body">
-				<div class="row">
-					<div class="col-sm-12 col-md-12 col-lg12 col-xl-12">
-						<form action="" method="POST">
-								@csrf
-								
-								<input type="text" id="scheduleCreate_user_id" name="scheduleCreate_user_id" hidden  >
-								
-								<div class="row">
-								
-									<div class="col-2">
-									    
-									</div>
-								
-									
-									
-									<div class="col-sm-6 col-md-3 col-lg-3">
-										<div class="form-group ">
-											<label for="starttime">Start Time:</label>
-											<input type="time" 
-													class="form-control  " 
-													style="margin-top:-6px;" 
-													onClick="elementClicked('starttime')"
-													min="06:00" max="20:00" 
-													required
-													name ="starttime"
-													id="starttime">
-											
-											<div class="text-danger" id="starttimeErrorMsg"></div>
-													   
-											</div>
-									</div>
-									
-									<div class="col-sm-6 col-md-3 col-lg-3">
-										<div class="form-group ">
-											<label for="starttime">End Time:</label>
-											<input type="time" 
-													class="form-control  " 
-													style="margin-top:-6px;" 
-													onClick="elementClicked('starttime')"
-													min="06:00" max="20:00" 
-													required
-													name ="starttime"
-													id="starttime">
-											
-											<div class="text-danger" id="starttimeErrorMsg"></div>
-													   
-											</div>
-									</div>
-								
-								
-								</div>
-
-								
-							<div class="modal-footer">
-									<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-									<button type="button"  class="btn btn-primary"  onClick="createNewEvent()" >Submit</button>
-								</div>  
-								
-						</form>
-					</div>
+				
+				<form action="" method="POST">
+					@csrf
+					
+					<input type="text" id="scheduleCreate_user_id" name="scheduleCreate_user_id" hidden  >
+					
+					<div class="row border-bottom bg-light" style="margin-top:-12px; margin-bottom:12px;">
+						<div class="col-3">
+								Date
+						</div>
 						
-				</div>
+						<div class="col-3">
+								Start
+						</div>
+						
+						<div class="col-3">
+								End
+						</div>
+						
+						<div class="col-3">
+								Store
+						</div>
+					
+					</div>
+					
+					
+					
+								
+					@foreach($scheduleDays as $sch)			
+						<div class="row">
+						
+							<div class="col-3">
+								{{$sch->date}}  {{$sch->day_abbr}} <div id="sch_ok_{{$sch->day_id}}" class="material-icons text-success" style="display:none">check</div>
+							</div>
+						
+							
+							
+							<div class="col-3">
+								<div class="form-group ">
+									<input type="time" 
+											class="form-control  " 
+											style="margin-top:-6px;" 
+											onfocusout="elementClicked({{$sch->day_id}})"
+											min="06:00" max="20:00" 
+											required
+											name ="starttime_{{$sch->day_id}}"
+											id="starttime_{{$sch->day_id}}">
+									
+									<div class="text-danger" id="starttimeErrorMsg_{{$sch->day_id}}"></div>
+											   
+									</div>
+							</div>
+							
+							<div class="col-3">
+								<div class="form-group ">
+									<input type="time" 
+											class="form-control  " 
+											style="margin-top:-6px;" 
+											onfocusout="elementClicked({{$sch->day_id}})"
+											min="06:00" max="20:00" 
+											required
+											name ="endtime_{{$sch->day_id}}"
+											id="endtime_{{$sch->day_id}}">
+									
+									<div class="text-danger" id="endtimeErrorMsg_{{$sch->day_id}}"></div>
+											   
+									</div>
+							</div>
+							
+							<div class="col-3">
+								
+									<select name="store_id" id="store_id_{{$sch->day_id}}" class="form-control" 
+										onClick="elementClicked({{$sch->day_id}})"
+										style="margin-top:-6px;"  >
+									@foreach($stores as $store )
+										<option value="{{ $store->id }}">
+											{{ $store->text}}
+										</option>
+										@endforeach
+									</select>
+									<div class="text-danger" id="store_idErrorMsg_{{$sch->day_id}}"></div>
+							</div>
+						
+						
+						</div>
+					@endforeach
+
+					<div class="row">
+						<div class="col-3">
+							<strong>Weekly Hours : <span id="weeklyHours"></span></strong>
+						</div>
+					</div>
+					
+					<div class="row modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+						<button type="button"  class="btn btn-primary"  onClick="createEmployeeSchedule()" >Submit</button>
+					</div>  
+								
+				</form>
+					
 			</div>
 		</div>
 	</div>

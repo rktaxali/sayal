@@ -38,4 +38,17 @@ function hideModal(){
     $(".modal").hide();
   }
   
+  
+  /* Converts time string in HH:MM format (24 hrs format) into minutes */
+  function timeToMinutes(timeStr)
+  {
+	  return parseInt(timeStr.substring(0,2))*60 + parseInt(timeStr.substring(3,5));
+  }
+  
+  // Returns difference in minutes 
+  function timeDiff_minutes(endTimeStr, startTimeStr)
+  {
+	  return timeToMinutes(endTimeStr) - timeToMinutes(startTimeStr);
+  }
+  
 
