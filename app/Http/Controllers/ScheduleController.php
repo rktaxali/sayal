@@ -133,7 +133,7 @@ class ScheduleController extends Controller
 	{
 		$schedule_id = session()->get('schedule_id');
 		$user_id =  $request->user_id;
-		$query = "SELECT `name`, u.store_id, sd.date, d.day_abbr
+		$query = "SELECT `name`, u.store_id, sd.date, d.day_abbr, u.min_hours, u.max_hours
 				FROM users u 
 				INNER JOIN schedule_dates sd ON sd.schedule_id = '$schedule_id'
 				INNER JOIN days d ON sd.day_id = d.id 

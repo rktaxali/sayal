@@ -48,6 +48,8 @@
 							if (emplSchedule)
 							{
 								$('#createUserName').text(emplSchedule[0].name);
+								$('#min_hours').text(emplSchedule[0].min_hours);
+								$('#max_hours').text(emplSchedule[0].max_hours);
 							//	console.log(emplSchedule);
 								
 								// Update default store for each day
@@ -140,7 +142,22 @@
 		{
 			totalMinutes += hoursData[i];
 		}
-		$('#weeklyHours').text(totalMinutes/60);
+		let weeklyHours = (totalMinutes/60).toFixed(2);
+		$('#weeklyHours').text(weeklyHours);
+
+		// Update Weekly hours OK?  scheduled_hours_ok
+		if (  weeklyHours >= parseFloat($('#min_hours').text()) && weeklyHours <= parseFloat($('#max_hours').text()) )
+		{
+			$('#scheduled_hours_ok').show();
+		}
+		else
+		{
+			$('#scheduled_hours_ok').hide();
+		}
+		
+		(weeklyHours > parseFloat($('#max_hours').text()) ) ? $('#scheduled_hours_exeeded').show() : $('#scheduled_hours_exeeded').hide();
+
+	
 	}
 	
 	

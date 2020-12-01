@@ -127,8 +127,11 @@
 					@endforeach
 
 					<div class="row">
-						<div class="col-3">
-							<strong>Weekly Hours : <span id="weeklyHours"></span></strong>
+						<div class="col-12">
+							Min Hours: <span id='min_hours' class="ml-1 mr-4"></span>Max Hours: <span id='max_hours' class="ml-1 mr-4"></span>
+							Scheduled Hours: <span id="weeklyHours" class="ml-1 mr-4"></span>
+							<div id="scheduled_hours_ok" class="material-icons text-success" style="display:none">check</div>
+							<span id="scheduled_hours_exeeded" class="text-danger" style="display:none">Scheduled Hours Exceed Max Limit</span>
 						</div>
 					</div>
 					
