@@ -38,9 +38,18 @@ class ScheduleController extends Controller
 		if(auth()->user()->hasPermissionTo('create_store_schedule'))
         {
 			$stores = UserController::getStoreCodes();
-			$schedule_id = $request->schedule_id;
-			// save $schedule_id for use at the time of saving data 
-			session()->put('schedule_id', $schedule_id);  
+			
+			if ( $request->method() === 'POST') 
+			{
+				// save $schedule_id for use at the time of saving data 
+				$schedule_id = $request->schedule_id;
+				session()->put('schedule_id', $schedule_id);  
+			}
+			else
+			{
+				$schedule_id = session()->get('schedule_id');
+			}
+			
 			// fetch data from all active employees for all days for the selcted schedules 
 			
 			// display all active employees and an Add/Edit button 
@@ -53,10 +62,10 @@ class ScheduleController extends Controller
 			if ($scheduleDetails)
 			{
 				// get employee_schedules data for each employee for the current schedule_id
-				$query = "SELECT user_id, GROUP_CONCAT(' ',s.date, ': ', left(s.start_time,5), '-' ,left(s.end_time,5), ' ', st.name ) AS empl_schedule
+				$query = "SELECT user_id, GROUP_CONCAT(' ',s.date, ': ', left(s.starttime,5), '-' ,left(s.endtime,5), ' ', st.name ) AS empl_schedule
 						FROM employee_schedules s
 						LEFT JOIN stores st ON s.store_id = st.id
-						WHERE s.schedule_id = 1
+						WHERE s.schedule_id = $schedule_id
 						GROUP BY s.user_id";
 				$result= DB::select($query);
 				$array = (array)$result;
@@ -133,10 +142,34 @@ class ScheduleController extends Controller
 	{
 		$schedule_id = session()->get('schedule_id');
 		$user_id =  $request->user_id;
-		$query = "SELECT `name`, u.store_id, sd.date, d.day_abbr, u.min_hours, u.max_hours
+		$query = "SELECT `name`, if(eds.store_id IS NULL, u.store_id, eds.store_id) AS store_id, 
+				sd.date, d.day_abbr, u.min_hours, u.max_hours, eds.starttime, eds.endtime
 				FROM users u 
 				INNER JOIN schedule_dates sd ON sd.schedule_id = '$schedule_id'
 				INNER JOIN days d ON sd.day_id = d.id 
+				LEFT JOIN employee_default_schedules eds ON u.id = eds.user_id AND d.id = eds.day
+				WHERE u.id = '$user_id' ";
+		$emplSchedule =  DB::select( DB::raw($query)); 		
+		
+		
+		
+		// get basic data for the user and schedule_id 
+		
+		return Response::json($emplSchedule);
+	}
+	
+	public function userScheduleData(Request $request) 
+	{
+		$schedule_id = session()->get('schedule_id');
+		$user_id =  $request->user_id;
+		session()->put('schedule_user_id',$user_id);
+		$query = "SELECT `name`,  sd.date, d.day_abbr, u.min_hours, u.max_hours, 
+				left(s.starttime,5) as starttime, left(s.endtime,5) as endtime,
+				s.store_id
+				FROM users u 
+				INNER JOIN schedule_dates sd ON sd.schedule_id = '$schedule_id'
+				INNER JOIN days d ON sd.day_id = d.id 
+				LEFT JOIN employee_schedules s ON s.schedule_id = '$schedule_id' AND s.user_id = u.id AND d.id = s.day
 				WHERE u.id = '$user_id'";
 		$emplSchedule =  DB::select( DB::raw($query)); 		
 		
@@ -162,5 +195,156 @@ class ScheduleController extends Controller
 	}
 	
 	
+	
+	/*
+"_token" => "G6tAHvLhZpQZ8bxaJ1trJFf6zJT3GCFWlOgFCs86"
+       "_token" => "G6tAHvLhZpQZ8bxaJ1trJFf6zJT3GCFWlOgFCs86"
+      "scheduleCreate_user_id" => "5"
+      "date_1" => "2020-11-30"
+      "starttime_1" => "08:00"
+      "endtime_1" => "17:00"
+      "store_id_1" => "1"
+      "date_2" => "2020-12-01"
+      "starttime_2" => "08:00"
+      "endtime_2" => "17:00"
+      "store_id_2" => "1"
+      "date_3" => "2020-12-02"
+      "starttime_3" => "08:00"
+      "endtime_3" => "17:00"
+      "store_id_3" => "1"
+      "date_4" => "2020-12-03"
+      "starttime_4" => "08:00"
+      "endtime_4" => "17:00"
+      "store_id_4" => "1"
+      "date_5" => "2020-12-04"
+      "starttime_5" => "08:00"
+      "endtime_5" => "17:00"
+      "store_id_5" => "1"
+      "date_6" => "2020-12-05"
+      "starttime_6" => null
+      "endtime_6" => null
+      "store_id_6" => "1"
+      "date_7" => "2020-12-06"
+      "starttime_7" => null
+      "endtime_7" => null
+      "store_id_7" => "1"
+	
+	
+	
+	*/
+	
+	public function createEmployee(Request $request)
+	{
+		$retval = false;
+		//dd($request->scheduleCreate_user_id);
+		if(auth()->user()->hasPermissionTo('create_store_schedule'))
+        {
+			$schedule_id = session()->get('schedule_id');	
+			for($i=1; $i<8; $i++)
+			{
+				$starttime = $request->input('starttime_'.$i);
+				$endtime = $request->input('endtime_'.$i);
+				
+				if ($starttime && $endtime)
+				{
+					DB::table('employee_schedules')->insert(
+						[
+							'schedule_id' => $schedule_id,
+							'day' => $i,
+							'starttime' => $starttime,
+							'endtime' => $endtime,
+							'user_id'=> $request->input('scheduleCreate_user_id'),
+							'date'=> $request->input('date_'.$i),
+							'store_id'=> $request->input('store_id_'.$i),
+						]
+					);		
+				}
+				
+			}
+			$retval = true;
+			 
+		}
+		return Response::json($retval);
+	}
+
+
+	// Delete existing data from employee_schedules and create new records 
+	public function updadeUserScheduleData(Request $request)
+	{
+		$retval = false;
+		if(auth()->user()->hasPermissionTo('create_store_schedule'))
+        {
+			$schedule_id = session()->get('schedule_id');
+			$user_id = session()->get('schedule_user_id');
+			
+			DB::table('employee_schedules')->where('schedule_id', '=', $schedule_id)->where('user_id', '=', $user_id)->delete();
+
+			for($i=1; $i<8; $i++)
+			{
+				$starttime = $request->input('starttime_'.$i);
+				$endtime = $request->input('endtime_'.$i);
+				
+				if ($starttime && $endtime)
+				{
+					DB::table('employee_schedules')->insert(
+						[
+							'schedule_id' => $schedule_id,
+							'day' => $i,
+							'starttime' => $starttime,
+							'endtime' => $endtime,
+							'user_id'=> $user_id,
+							'date'=> $request->input('date_'.$i),
+							'store_id'=> $request->input('store_id_'.$i),
+						]
+					);		
+				}
+				
+			}
+			$retval = true;
+			 
+		}
+		return Response::json($retval);
+	}
+
+
+	// Deletes user schedule data as per 
+	public function deleteUserScheduleData(Request $request)
+    {
+		$retval = false;
+		if(auth()->user()->hasPermissionTo('create_store_schedule'))
+        {
+			$schedule_id = session()->get('schedule_id');
+			$user_id = $request->user_id;
+			
+			DB::table('employee_schedules')->where('schedule_id', '=', $schedule_id)->where('user_id', '=', $user_id)->delete();
+			$retval = true;
+		}
+		return Response::json($retval);
+	}
+
+	public function saveAsDefaultSchedule(Request $request)
+    {
+		$retval = false;
+		if(auth()->user()->hasPermissionTo('create_store_schedule'))
+        {
+			$schedule_id = session()->get('schedule_id');
+			$user_id = $request->user_id;
+			DB::table('employee_default_schedules')->where('user_id', '=', $user_id)->delete();
+
+			$query = "INSERT INTO employee_default_schedules
+						(
+							user_id, `day`, store_id, starttime, endtime
+						)
+						SELECT e.user_id, e.day, e.store_id, e.starttime, endtime
+						FROM employee_schedules e
+						WHERE e.schedule_id = '$schedule_id'
+							AND e.user_id = '$user_id'
+							ORDER BY day";
+			DB::statement( $query );
+			$retval = true;
+		}
+		return Response::json($retval);
+	}
+
 	
 }

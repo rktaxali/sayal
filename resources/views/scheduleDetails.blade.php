@@ -16,41 +16,39 @@
                 <form id="schedule-form"
                     action="{{ route('schedule.edit') }}" method="POST">
                                 @csrf
-                        <table class="table table-bordered table-responsive-lg">
-                            <tr>
-                                <th>Name</th>
-								<th>Schedule</th>
-                                <th>Action</th>
-                               
-                            </tr>
-
+                        <table class="table table-striped table-bordered table-responsive-lg">
+							<thead>
+								<tr>
+									<th scope="col" >Name</th>
+									<th scope="col">Schedule</th>
+									<th scope="col" >Action</th>
+								   
+								</tr>
+							</thead>
+							<tbody>
 							@foreach ($scheduleDetails as $schedule)
-                                <tr>
-                                    <td>
-									{{ $schedule->name}}
+                                <tr scope="row"  style="padding:2px 5px 2px 5px">
+                                    <td style="padding:2px 5px 2px 5px">
+										{{ $schedule->name}}
                                     </td>
                                     
-									 <td>
+									 <td style="padding:2px 5px 2px 5px">
 									 {{ $schedule->schedule}}
 									 </td>
-									<td>
+									<td style="padding:2px 5px 2px 5px">
 										@if( $schedule->howmany )
-											<button type="button" 
-												onClick="editSchedule({{ $schedule->user_id }})"
-												name="editScheduleBtn" 
-												id="editScheduleBtn" 
-												value ="{{ $schedule->user_id }}"  
-													class="btn btn-sm btn-secondary" style="width:70px;">
-												Edit</button>
+											
+
+											<span class="material-icons" style="color:blue; cursor:pointer"  onClick="editSchedule({{ $schedule->user_id }})" >edit</span>
+											<span class="material-icons" style="color:red; cursor:pointer" onClick="deleteSchedule( '{{ $schedule->user_id  }}','{{ $schedule->name  }}'  )" >delete</span>
+											<button type="button" class="btn btn-default text-success"  onClick="saveAsDefaultSchedule({{ $schedule->user_id }})" >  
+												Save as Default
+											</button>
 												<div id="spinnerEdit" class="spinner-border text-primary ml-2" style="visibility:hidden"></div>
 										@else
-										<button type="button" 
-											onClick="createSchedule({{ $schedule->user_id }})"
-											name="createScheduleBtn" 
-											id="createScheduleBtn"
-											value ="{{ $schedule->user_id }}"  class="btn btn-sm btn-secondary" style="width:70px;">
-												Create</button>
-											<div id="spinnerCreate_{{$schedule->user_id}}" class="spinner-border text-primary ml-2" style="visibility:hidden"></div>	
+											<span class="material-icons" style="color:green; cursor:pointer" onClick="createSchedule({{ $schedule->user_id }})" >add_circle</span>
+											<div id="spinnerCreate_{{$schedule->user_id}}" class="spinner-border text-primary ml-2" 
+												style="visibility:hidden"></div>	
 										@endif	
                                     </td>  
 
@@ -58,6 +56,7 @@
                                     
                                 </tr>
 							@endforeach
+							</tbody>
                            
                         </table>
 
@@ -70,6 +69,34 @@
         </div>
 		@include('components.schedule_create_modal')
 		@include('components.schedule_edit_modal')
+
+
+
+<!-- Button trigger modal -->
+<button type="button" id="btnDeleteEmployeeSchedule" class="btn btn-primary" data-toggle="modal" data-target="#deleteConfirmModal" hidden >
+  Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteConfirmModalLabel">Delete Employee Schedule?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="divdDeleteConfirmModalBody">
+        Are you sure that you want to Delete the Employee Schedule?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary"  onClick="deleteScheduleNow()" >Yes Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
 
     </div>
 	

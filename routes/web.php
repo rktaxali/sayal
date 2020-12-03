@@ -79,8 +79,19 @@ Route::get('/task/create',[TaskController::class,'create'])->name('task.create')
 // Schedules
 Route::get('/schedule',[ScheduleController::class,'index'])->name('schedule.index');
 Route::post('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.edit');
+Route::get('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.edit');
+
 Route::post('/createSchedule',[ScheduleController::class,'createSchedule'])->name('schedule.create');
 Route::post('/userScheduleBasicData',[ScheduleController::class,'userScheduleBasicData'])->name('user.scheduleBasicData');	
+Route::post('/userScheduleData',[ScheduleController::class,'userScheduleData'])->name('user.userScheduleData');	
+Route::post('/updadeUserScheduleData',[ScheduleController::class,'updadeUserScheduleData'])->name('schedule.updadeUserSchedule');	
+Route::post('/deleteUserScheduleData',[ScheduleController::class,'deleteUserScheduleData'])->name('schedule.userSchedule');	
+Route::post('/saveAsDefaultSchedule',[ScheduleController::class,'saveAsDefaultSchedule'])->name('schedule.saveAsDefault');	
+
+
+
+Route::post('/createEmployee',[ScheduleController::class,'createEmployee'])->name('schedule.createEmployee');	
+
 
 
 

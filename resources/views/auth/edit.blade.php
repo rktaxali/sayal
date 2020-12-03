@@ -63,7 +63,7 @@
                             </div>
 							
 							@if ($stores)
-								<label for="password" class="col-md-2 col-form-label text-md-right">Default Store</label>
+								<label for="store_id" class="col-md-2 col-form-label text-md-right">Default Store</label>
 								<div class="col-md-4">
 									
 										<select name="store_id" id="store_id" class="form-control" >
