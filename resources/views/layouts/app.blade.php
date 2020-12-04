@@ -92,13 +92,25 @@
 								</li>
 							@endcan
                             
+                            @can('view_all_schedules')
+								 <li class="nav-item dropdown">
+									<a href="{{ route('schedule.view')}}" class="nav-link">View Schedules</a>
+								</li>
+							@endcan
+
 							@can('create_store_schedule')
 								 <li class="nav-item dropdown">
 									<a href="{{ route('schedule.index')}}" class="nav-link">Schedules</a>
 								</li>
 							@endcan
 
-                           
+                            @can('aprv_schedule')
+								 <li class="nav-item dropdown">
+									<a href="{{ route('schedule.approveSubmittedSchedules')}}" class="nav-link">Schedules</a>
+								</li>
+							@endcan
+
+                                                     
                             <li class="nav-item dropdown">
                                 <a  class="nav-link dropdown-toggle"
                                     id="navbarDropdown"
@@ -161,9 +173,29 @@
                     </div>
                 </div>
             </div>
+
+            <div  class="row">
+                <div class="col-2">
+                </div>
+
+                <div id="divAlertMessage" class="col-6"  style="display:none;" >
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span class="font-weight-bold" id="alertMessage"></span> 
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                </div>
+            </div>
+            
             
             @yield('content')
         </main>
+
+
+       
+
+
     </div>
 
 </body>

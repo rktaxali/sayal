@@ -50,5 +50,18 @@ function hideModal(){
   {
 	  return timeToMinutes(endTimeStr) - timeToMinutes(startTimeStr);
   }
+
+
+  // Displays the passed message for 5 seconds (by default)
+  function dispayAlerrtMessage(message, timeout=5000)
+  {
+        document.getElementById("alertMessage").textContent = message;
+        document.getElementById("divAlertMessage").style.display="block";
+        setTimeout(function(){
+            
+            document.getElementById("divAlertMessage").style.display="none";
+            
+         }, timeout);
+  }
   
 

@@ -572,8 +572,7 @@
 			success: function(response){
 				if (response)
 				{
-					alert('sch saved..');
-					//window.location.href ='/scheduleEdit';
+					dispayAlerrtMessage('Employee Schedule saved as default schedule.',10000);
 				
 				}
 			},

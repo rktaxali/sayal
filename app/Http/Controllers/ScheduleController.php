@@ -15,17 +15,50 @@ class ScheduleController extends Controller
         $this->middleware('auth');
 	}
 	
-	// returns current schedules 
+	// returns current schedules for the latest 4 schedueles. For Edit/create
 	public function index()
 	{
-		if(auth()->user()->hasPermissionTo('create_store_schedule'))
+		if(auth()->user()->hasPermissionTo('create_store_schedule') )
         {
 			
-			$schedules = Schedule::all();
+			$schedules = Schedule::orderBy('id', 'desc')
+					->take(4)
+					->get();
 			return view('schedule',compact('schedules'));
 		}
 	}
-	
+
+
+	public function viewAllSchedules()
+	{
+		if(auth()->user()->hasPermissionTo('view_all_schedules') )
+        {
+			
+			$schedules = Schedule::orderBy('id', 'desc')
+					->take(8)
+					->get();
+			return view('viewSchedules',compact('schedules'));
+		}
+	}
+
+
+
+
+
+	// returns schedules available to be approved
+	public function approveSubmittedSchedules()
+	{
+		if(auth()->user()->hasPermissionTo('aprv_schedule') )
+        {
+			//	$schedules = Schedule::where('prepared_user_id','>',0)->get();
+			$query = "SELECT *
+					FROM schedules s
+					WHERE s.prepared_user_id > 0
+					AND s.approved_user_id IS NULL";
+			$schedules = DB::select($query);
+			return view('schedule',compact('schedules'));
+		}
+	}
 	
 	/**
 	  * Display Schedule details for the selected schedule 
@@ -49,7 +82,9 @@ class ScheduleController extends Controller
 			{
 				$schedule_id = session()->get('schedule_id');
 			}
-			
+
+			$schedule = Schedule::where('id','=',$schedule_id)->get()->first();
+			//dd($schedule);
 			// fetch data from all active employees for all days for the selcted schedules 
 			
 			// display all active employees and an Add/Edit button 
@@ -84,7 +119,7 @@ class ScheduleController extends Controller
 			}
 			
 			$scheduleDays = $this->getScheduleDays();
-			return view('scheduleDetails',compact('scheduleDetails','stores','scheduleDays'));
+			return view('scheduleDetails',compact('schedule','scheduleDetails','stores','scheduleDays'));
 			
 		}
 	}
@@ -346,5 +381,61 @@ class ScheduleController extends Controller
 		return Response::json($retval);
 	}
 
+
+	public function submitForApproval(Request $request)
+	{
+		$retVal = false;
+		if(auth()->user()->hasPermissionTo('create_store_schedule'))
+        {
+			$schedule_id = $request->schedule_id;
+			$user_id =auth()->user()->id;
+			$retVal = Schedule::where('id', $schedule_id)->update(['prepared_user_id' => $user_id]);
+		}
+		return Response::json($retVal);
+	}
+
+
 	
-}
+	public function approveSchedule(Request $request)
+	{
+		$retVal = false;
+		if(auth()->user()->hasPermissionTo('aprv_schedule'))
+        {
+			$schedule_id = $request->schedule_id;
+			$user_id =auth()->user()->id;
+			$retVal = Schedule::where('id', $schedule_id)->update(['approved_user_id' => $user_id]);
+		}
+		return Response::json($retVal);
+	}
+
+	// Returns store schedule for the passed schedule id
+	public function getStoreSchedule()
+	{
+		$returnArray = [];
+	//	$schedule_id = $request->schedule_id; 
+	//	$store_id = $request->store_id;
+
+		$schedule_id = 13;
+		$store_id = 1;
+		$dates = DB::table('schedule_dates')->where('schedule_id','=',$schedule_id)->get();
+		
+		
+
+
+		foreach($dates as $date)
+		{
+		//	dd($date->date, $date->id);
+			$query = "SELECT s.id, u.name, es.*
+				FROM schedules s
+				INNER JOIN employee_schedules es ON s.id = es.schedule_id 
+						AND es.store_id = '$store_id' AND es.day = $date->day_id
+				INNER JOIN users u ON es.user_id = u.id
+				WHERE s.id = '$schedule_id'
+				ORDER BY  es.date, u.name";
+			
+			$returnArray[$date->date] = DB::select($query);
+		}
+		dd($returnArray);
+
+	}
+}	

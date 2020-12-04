@@ -80,6 +80,12 @@ Route::get('/task/create',[TaskController::class,'create'])->name('task.create')
 Route::get('/schedule',[ScheduleController::class,'index'])->name('schedule.index');
 Route::post('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.edit');
 Route::get('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.edit');
+Route::get('/approveSubmittedSchedules',[ScheduleController::class,'approveSubmittedSchedules'])->name('schedule.approveSubmittedSchedules');
+Route::get('/getStoreSchedule',[ScheduleController::class,'getStoreSchedule'])->name('schedule.storeSchedule');
+Route::get('/viewAllSchedules',[ScheduleController::class,'viewAllSchedules'])->name('schedule.view');
+
+
+
 
 Route::post('/createSchedule',[ScheduleController::class,'createSchedule'])->name('schedule.create');
 Route::post('/userScheduleBasicData',[ScheduleController::class,'userScheduleBasicData'])->name('user.scheduleBasicData');	
@@ -87,6 +93,8 @@ Route::post('/userScheduleData',[ScheduleController::class,'userScheduleData'])-
 Route::post('/updadeUserScheduleData',[ScheduleController::class,'updadeUserScheduleData'])->name('schedule.updadeUserSchedule');	
 Route::post('/deleteUserScheduleData',[ScheduleController::class,'deleteUserScheduleData'])->name('schedule.userSchedule');	
 Route::post('/saveAsDefaultSchedule',[ScheduleController::class,'saveAsDefaultSchedule'])->name('schedule.saveAsDefault');	
+Route::post('/submitForApproval',[ScheduleController::class,'submitForApproval'])->name('schedule.submitForApproval');	
+Route::post('/approveSchedule',[ScheduleController::class,'approveSchedule'])->name('schedule.approveSchedule');	
 
 
 

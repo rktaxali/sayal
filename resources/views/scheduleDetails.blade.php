@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-12">
-            <h2>Manage Schedule Details</h2>
+            <h2>Manage Schedule Details for Week Starting {{ $schedule->start_date }}</h2>
         </div>
     </div>
 
@@ -39,11 +39,22 @@
 										@if( $schedule->howmany )
 											
 
-											<span class="material-icons" style="color:blue; cursor:pointer"  onClick="editSchedule({{ $schedule->user_id }})" >edit</span>
-											<span class="material-icons" style="color:red; cursor:pointer" onClick="deleteSchedule( '{{ $schedule->user_id  }}','{{ $schedule->name  }}'  )" >delete</span>
-											<button type="button" class="btn btn-default text-success"  onClick="saveAsDefaultSchedule({{ $schedule->user_id }})" >  
-												Save as Default
-											</button>
+											<span class="material-icons" 
+                          style="color:blue; cursor:pointer"  
+                          onClick="editSchedule({{ $schedule->user_id }})" >
+                            edit
+                      </span>
+											<span class="material-icons" 
+                          style="color:red; cursor:pointer" 
+                          onClick="deleteSchedule( '{{ $schedule->user_id  }}','{{ $schedule->name  }}'  )" >
+                              delete
+                      </span>
+
+                      <br>
+                      <a href=""
+                          onClick="saveAsDefaultSchedule({{ $schedule->user_id }})" >
+                          Save as Default
+                      </a>
 												<div id="spinnerEdit" class="spinner-border text-primary ml-2" style="visibility:hidden"></div>
 										@else
 											<span class="material-icons" style="color:green; cursor:pointer" onClick="createSchedule({{ $schedule->user_id }})" >add_circle</span>

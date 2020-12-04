@@ -49,8 +49,8 @@
                                             value="1">       
                                     </td>
 									 <td>
-                                        <input type="checkbox" id="approve_schedule_{{$user->id}}" name="approve_schedule_{{$user->id}}" 
-                                            @if($user->approve_schedule) Checked @endif 
+                                        <input type="checkbox" id="aprv_schedule_{{$user->id}}" name="aprv_schedule_{{$user->id}}" 
+                                            @if($user->aprv_schedule) Checked @endif 
                                             value="1">       
                                     </td>
                                      <td>

@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-12">
-            <h2>Manage Schedules</h2>
+            <h2>View Schedules</h2>
         </div>
     </div>
 
