@@ -27,14 +27,28 @@
 							</thead>
 							<tbody>
 							@foreach ($scheduleDetails as $schedule)
-                                <tr scope="row"  style="padding:2px 5px 2px 5px">
-                                    <td style="padding:2px 5px 2px 5px">
-										{{ $schedule->name}}
-                                    </td>
+                  <tr scope="row"  style="padding:2px 5px 2px 5px">
+                    <td style="padding:2px 5px 2px 5px">
+                      {{ $schedule->name}}
+                    </td>
                                     
-									 <td style="padding:2px 5px 2px 5px">
-									 {{ $schedule->schedule}}
-									 </td>
+                      <td style="padding:2px 5px 2px 5px">
+                        <div class="row">
+                          @foreach($schedule->schedule as $data)
+                           
+                              <div class="col-6">
+                                  <div class="row">
+                                      <div class="col-3">{{ $data->date }}</div>
+                                      <div class="col-4">{{ $data->starttime }} - {{ $data->endtime }}</div>
+                                      <div class="col-3">{{ $data->store_name }}</div>
+                                  </div>
+                                  
+                              </div>
+                           
+                          @endforeach 
+                        </div>
+
+									  </td>
 									<td style="padding:2px 5px 2px 5px">
 										@if( $schedule->howmany )
 											

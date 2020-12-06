@@ -43,6 +43,74 @@ class ScheduleController extends Controller
 
 
 
+	// display schedules for the logged in user 
+	public function userSchedules()
+	{
+		$user_id = auth()->user()->id; 
+		$query = "SELECT s.id, s.start_date, '' as sch_data, '' as weekly_hours
+			FROM schedules s
+			WHERE s.approved_user_id IS NOT NULL 
+			ORDER BY s.id DESC LIMIT 4";
+
+		$schedules = DB::select($query);
+		
+		$i=0;
+		foreach ($schedules as $schedule)
+		{
+			// get weekly schedule and assign it to $schedule->sch_data
+			$schedules[$i]->sch_data = $this->getEmplScheduleData($schedule_id, $user_id);
+			// get weekly assigned hours and assign it to $schedule->weekly_hours
+			$schedules[$i]->weekly_hours = $this->getEmplScheduledHours($schedule->id, $user_id);
+			
+			$i++;
+		}
+
+
+		return view('home',compact('schedules'));
+	}
+
+
+	public function getEmplScheduleData($schedule_id, $user_id)
+	{
+		// get weekly schedule and assign it to $schedule->sch_data
+		$query = "SELECT s.date, LEFT(s.starttime,5) AS starttime, LEFT(s.endtime,5) AS endtime, s.store_id,
+			stores.name AS store_name
+			FROM employee_schedules s
+			INNER JOIN stores ON s.store_id = stores.id
+			WHERE s.schedule_id = '" .$schedule_id  ."' AND s.user_id = '$user_id'";
+		$data = DB::select($query);
+		return $data;
+	}
+	
+
+	// returns number of hours allocated for the weekly schdele for the passed 
+	// $user_id & $scheule_id 
+	public static function getEmplScheduledHours( $schedule_id,$user_id)
+	{
+		$hours = 0;
+		$minutes = 0 ;
+		$query = "SELECT s.user_id, 
+			left(TIMEDIFF(endtime,starttime),2) AS hours, 
+			substring(TIMEDIFF(endtime,starttime),4,2) AS minutes
+			FROM employee_schedules s
+			WHERE s.schedule_id = $schedule_id AND s.user_id = $user_id";
+		
+	
+		$schedules = DB::select($query);
+	
+		foreach ($schedules as $schedule)
+		{
+			$hours += intval($schedule->hours);
+			
+			$minutes += intval($schedule->minutes);
+		}
+		$hours = $hours + intval($minutes/60);
+		$minutes =  ($minutes % 60);
+		$hours+= $minutes/60;
+	   return number_format(round($hours,2),2);
+
+	}
+
 
 
 	// returns schedules available to be approved
@@ -88,7 +156,8 @@ class ScheduleController extends Controller
 			// fetch data from all active employees for all days for the selcted schedules 
 			
 			// display all active employees and an Add/Edit button 
-			$query = "SELECT u.id as user_id, concat(u.firstname, ' ', u.lastname) AS name, '' as schedule, COUNT(s.id) AS howmany
+			$query = "SELECT u.id as user_id, concat(u.firstname, ' ', u.lastname) AS name, '' as schedule, COUNT(s.id) AS howmany,
+						0 as weekly_hours
 						FROM users u
 						LEFT JOIN employee_schedules s ON u.id = s.user_id AND s.schedule_id = $schedule_id
 						WHERE u.`status` = 'active'
@@ -96,6 +165,8 @@ class ScheduleController extends Controller
 			$scheduleDetails = DB::select($query);
 			if ($scheduleDetails)
 			{
+
+				/*	
 				// get employee_schedules data for each employee for the current schedule_id
 				$query = "SELECT user_id, GROUP_CONCAT(' ',s.date, ': ', left(s.starttime,5), '-' ,left(s.endtime,5), ' ', st.name ) AS empl_schedule
 						FROM employee_schedules s
@@ -110,14 +181,16 @@ class ScheduleController extends Controller
 				{
 					$schArray[$val->user_id] = $val->empl_schedule;
 				}
-	
+				*/
+
+
 				// Update $scheduleDetails->schedule from $schArray
 				for($i=0; $i< count($scheduleDetails); $i++)
 				{
-					$scheduleDetails[$i]->schedule = (! empty($schArray[$scheduleDetails[$i]->user_id]))  ? $schArray[$scheduleDetails[$i]->user_id] : '';
+					$scheduleDetails[$i]->weekly_hours = $this->getEmplScheduledHours($schedule_id,$scheduleDetails[$i]->user_id);
+					$scheduleDetails[$i]->schedule = $this->getEmplScheduleData($schedule_id, $scheduleDetails[$i]->user_id) ; // (! empty($schArray[$scheduleDetails[$i]->user_id]))  ? $schArray[$scheduleDetails[$i]->user_id] : '';
 				}
 			}
-			
 			$scheduleDays = $this->getScheduleDays();
 			return view('scheduleDetails',compact('schedule','scheduleDetails','stores','scheduleDays'));
 			
@@ -408,18 +481,37 @@ class ScheduleController extends Controller
 		return Response::json($retVal);
 	}
 
+	
+	/**
+	 * For the passed $schedule_id, return a collection of schedules for each store 
+	 * Each store schedule list all employees, their daily schedule and total weekly hours.
+	 */
+	public function viewScheduleDetails(Request $request)
+	{
+		$schedule_id = $request->schedule_id; 
+		$stores = DB::select('Select * from Stores');
+		$store_schedules = [];
+		$i=0;
+		foreach ($stores as $store)
+		{
+			$store_schedule = $this->getStoreSchedule($schedule_id,$store->id);
+			//$store_schedules[] = $store_schedule;
+			$stores[$i]->schedule = $store_schedule;
+			$i++;
+		}
+		dd($stores);
+	}
+
+
+	
+
 	// Returns store schedule for the passed schedule id
-	public function getStoreSchedule()
+	public function getStoreSchedule($schedule_id, $store_id)
 	{
 		$returnArray = [];
-	//	$schedule_id = $request->schedule_id; 
-	//	$store_id = $request->store_id;
-
-		$schedule_id = 13;
-		$store_id = 1;
 		$dates = DB::table('schedule_dates')->where('schedule_id','=',$schedule_id)->get();
 		
-		
+	
 
 
 		foreach($dates as $date)
@@ -435,7 +527,13 @@ class ScheduleController extends Controller
 			
 			$returnArray[$date->date] = DB::select($query);
 		}
-		dd($returnArray);
-
+		
+		return $returnArray;
 	}
+
+
+
 }	
+
+
+

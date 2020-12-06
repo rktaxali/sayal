@@ -83,7 +83,7 @@
                            
 
                             <li class="nav-item dropdown">
-                                <a href="{{ route('home')}}" class="nav-link">Home</a>
+                                <a href="{{ route('user.schedules')}}" class="nav-link">Home</a>
                             </li>
 							
 							@can('create_user')
@@ -100,13 +100,13 @@
 
 							@can('create_store_schedule')
 								 <li class="nav-item dropdown">
-									<a href="{{ route('schedule.index')}}" class="nav-link">Schedules</a>
+									<a href="{{ route('schedule.index')}}" class="nav-link">Manage Schedules</a>
 								</li>
 							@endcan
 
                             @can('aprv_schedule')
 								 <li class="nav-item dropdown">
-									<a href="{{ route('schedule.approveSubmittedSchedules')}}" class="nav-link">Schedules</a>
+									<a href="{{ route('schedule.approveSubmittedSchedules')}}" class="nav-link">Approve Schedules</a>
 								</li>
 							@endcan
 

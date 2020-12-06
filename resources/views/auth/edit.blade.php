@@ -61,12 +61,14 @@
                                     </span>
                                 @enderror
                             </div>
-							
-							@if ($stores)
+
+                            @if ($stores)
 								<label for="store_id" class="col-md-2 col-form-label text-md-right">Default Store</label>
 								<div class="col-md-4">
 									
-										<select name="store_id" id="store_id" class="form-control" >
+										<select name="store_id" id="store_id" 
+                                                value= "{{ $user->store_id }}" 
+                                                class="form-control" >
 										@foreach($stores as $store )
 											<option value="{{ $store->id }}">
 												{{ $store->text}}
@@ -76,8 +78,30 @@
 										
 								</div>
 							@endif
+							
                         </div>
 						
+
+
+                        <div class="form-group row">
+                            @if ($emplTypes)
+								<label for="empl_type" class="col-md-2 col-form-label text-md-right">Empl Type</label>
+								<div class="col-md-4">
+										<select name="empl_type" 
+                                            id="empl_type"
+                                            value= "{{ $user->empl_type }}" 
+                                             class="form-control" >
+										@foreach($emplTypes as $key=>$val )
+											<option value="{{  $key}}">
+												{{ $val}}
+											</option>
+											@endforeach
+										</select>
+								</div>
+							@endif
+                        </div>
+						
+
 	                  <div class="form-group row">
                             <label for="min_hours" class="col-md-2 col-form-label text-md-right">Min Hours</label>
 
@@ -134,3 +158,12 @@
     </div>
 </div>
 @endsection
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(event) { 
+     document.getElementById('store_id').value = "{{ $user->store_id}}";
+     document.getElementById('empl_type').value = "{{ $user->empl_type}}";
+});
+
+</script>

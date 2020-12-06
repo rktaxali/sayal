@@ -14,7 +14,7 @@
             
             @if ( count($schedules)  )
                 <form id="schedule-form"
-                    action="{{ route('schedule.edit') }}" method="POST">
+                    action="{{ route('schedule.viewDetails') }}" method="POST">
                                 @csrf
                         <table class="table table-bordered table-responsive-lg">
                             <tr>
@@ -45,28 +45,14 @@
                                     </td>
                                     
 									<td>
-										<button type="submit" name="schedule_id" value ="{{ $schedule->id }}"  class="btn btn-sm btn-secondary">
-												Edit</button>
-
-                                        @if(! $schedule->approved_user_id && ! $schedule->prepared_user_id)
-                                            <button type="button" 
-                                                id="btnSubmitForApproval"
-                                                name="btnSubmitForApproval" 
-                                                onClick="submitForApproval({{ $schedule->id }})"
-                                                class="btn btn-sm btn-secondary">
-                                                    Submit</button>
-                                        @endif
-
-                                        @can('aprv_schedule')
-                                            @if(! $schedule->approved_user_id &&  $schedule->prepared_user_id)
-                                                <button type="button" 
-                                                    id="btnApproved"
-                                                    name="btnApproved" 
-                                                    onClick="approve_schedule({{ $schedule->id }})"
-                                                    class="btn btn-sm btn-secondary">
-                                                        Approve</button>
-                                            @endif
-										@endcan	
+                                        {{ $schedule->id}}
+                                        <button type="submit" 
+                                                name="schedule_id"
+                                                value = "{{$schedule->id}}"
+                                                class="btn btn-primary">
+                                                View
+                                         </button>
+										
                                     </td>  
 
                                     
@@ -87,23 +73,7 @@
     </div>
 	
 	
-	<div class = "row ">
-        <div class="col-12 ">
-			<form id="new-schedule-form"
-							action="{{ route('schedule.create') }}" method="POST">
-                   @csrf
-`                  <button
-                        id="submitButton"
-                            type="button" 
-                            onClick="submitForm()"
-                            class="btn btn-primary ml-3">
-                        Create New Schedule
-                    </button>
-
-                    <div id="spinner" class="spinner-border text-primary ml-2" style="visibility:hidden"></div>
-			</form>
-		</div>
-	</div>
+	
  
 </div>
 
@@ -111,6 +81,8 @@
 
 
 <script>
+
+/*
     function submitForm() {
 		console.log('submit forn');
 		
@@ -190,6 +162,6 @@
 
     }
 
-
+ */
 </script>
 

@@ -28,6 +28,8 @@ class User extends Authenticatable
         'lastname',
         'email',
         'password',
+        'store_id',
+        'empl_type',
     ];
 
 

@@ -52,7 +52,7 @@ Route::post('/updateUser',[UserController::class,'update'])->name('user.update')
 	in the corresponding protected $middlewareGroups[] in kernel.php 
 */
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', [ScheduleController::class, 'userSchedules'])->name('user.schedules');
 Route::post('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home.post');
 
 
@@ -81,8 +81,9 @@ Route::get('/schedule',[ScheduleController::class,'index'])->name('schedule.inde
 Route::post('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.edit');
 Route::get('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.edit');
 Route::get('/approveSubmittedSchedules',[ScheduleController::class,'approveSubmittedSchedules'])->name('schedule.approveSubmittedSchedules');
-Route::get('/getStoreSchedule',[ScheduleController::class,'getStoreSchedule'])->name('schedule.storeSchedule');
+//Route::get('/getStoreSchedule',[ScheduleController::class,'getStoreSchedule'])->name('schedule.storeSchedule');
 Route::get('/viewAllSchedules',[ScheduleController::class,'viewAllSchedules'])->name('schedule.view');
+Route::post('/viewScheduleDetails',[ScheduleController::class,'viewScheduleDetails'])->name('schedule.viewDetails');
 
 
 

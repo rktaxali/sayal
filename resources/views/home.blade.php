@@ -7,7 +7,7 @@
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">{{ __('Dashboard') }}</div>
+                <div class="card-header">{{ __('Weekly Schedule') }}</div>
 
                     <div class="card-body">
                         @if (session('status'))
@@ -17,16 +17,41 @@
                         @endif
     
                         <div class="row">
-							<div class="col-5   col-sm-4   col-md-4 col-lg-4">
-								<form action="{{ route('home.post') }}" method="POST">
-									
-									@csrf
-									
+                            @foreach($schedules as $schedule)
+                                <div class="col-5 m-1">
+                                    <div class="row border" >
+                                        <div class="col-12"> 
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <h6>Week Starting  {{$schedule->start_date }} </h6>
+                                                </div>
+                                            </div>
 
-									
-									
-								</form>
-							</div>
+                                    
+                                            @foreach($schedule->sch_data as $data)
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <div class="row">
+                                                            <div class="col-3">{{ $data->date }}</div>
+                                                            <div class="col-4">{{ $data->starttime }} - {{ $data->endtime }}</div>
+                                                            <div class="col-3">{{ $data->store_name }}</div>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                </div>
+                                            @endforeach 
+                                            <div class="row">
+                                                <div class="col-12">
+                                                Total hours: {{$schedule->weekly_hours }} 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                  
+                                  
+                                </div>
+                            @endforeach
+
 							
 							
 							

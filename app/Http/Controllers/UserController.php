@@ -42,11 +42,14 @@ class UserController extends Controller
 	
 	public function edit (Request $request)
 	{
+		
 		$id = $request->edit_user_id;
 		$request->session()->put('user_id', $id);     // save user_id in session variable 
 		$user = User::find($id);
 		$stores = $this->getStoreCodes();
-        return view('auth.edit',['user'=>$user, 'stores'=>$stores,   ]);
+		$emplTypes = $this->getEmplTypes();
+	//	dd($user);
+        return view('auth.edit',['user'=>$user, 'stores'=>$stores, 'emplTypes'=> $emplTypes  ]);
 	}
 	
 	
@@ -92,6 +95,7 @@ class UserController extends Controller
 	  */
 	 protected function update(Request $request)
     {
+
 		$id = session()->get('user_id');
 		$request->validate([
              'firstname' => ['required', 'string', 'max:255'],
@@ -111,7 +115,8 @@ class UserController extends Controller
         $user->min_hours = request('min_hours');
         $user->max_hours = request('max_hours');
         $user->email = request('email');
-        $user->store_id = request('store_id');
+		$user->store_id = request('store_id');
+		$user->empl_type = request('empl_type');
         $user->save();
 	
 	return redirect('/userList')
@@ -130,6 +135,21 @@ class UserController extends Controller
 					SELECT '', '-- Select --' 
 				ORDER BY 1";
 		return   DB::select( DB::raw($query));  
+
+	}
+
+	
+	public static function getEmplTypes()
+	{
+		$emplTypes = [
+			''=> '-- Select --',
+			'Store'=>'Store',
+			'Warehouse'=>'Warehouse',
+			'Store/Warehouse'=>'Store/Warehouse',
+			'Front Office'=>'Front Office',
+		];
+	
+		return  $emplTypes;  
 
 	}
 	
