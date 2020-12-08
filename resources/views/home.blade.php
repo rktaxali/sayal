@@ -27,24 +27,27 @@
                                                 </div>
                                             </div>
 
-                                    
-                                            @foreach($schedule->sch_data as $data)
+                                            @if($schedule->sch_data)
+                                                @foreach($schedule->sch_data as $data)
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <div class="row">
+                                                                <div class="col-3">{{ $data->date }}</div>
+                                                                <div class="col-4">{{ $data->starttime }} - {{ $data->endtime }}</div>
+                                                                <div class="col-5">{{ $data->store_name }}</div>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                    </div>
+                                                @endforeach 
                                                 <div class="row">
                                                     <div class="col-12">
-                                                        <div class="row">
-                                                            <div class="col-3">{{ $data->date }}</div>
-                                                            <div class="col-4">{{ $data->starttime }} - {{ $data->endtime }}</div>
-                                                            <div class="col-3">{{ $data->store_name }}</div>
-                                                        </div>
-                                                        
+                                                    Total hours: {{$schedule->weekly_hours }} 
                                                     </div>
                                                 </div>
-                                            @endforeach 
-                                            <div class="row">
-                                                <div class="col-12">
-                                                Total hours: {{$schedule->weekly_hours }} 
-                                                </div>
-                                            </div>
+                                            @else
+                                                <span class="text-danger">No Schedule Available</span>
+                                            @endif
                                         </div>
                                     </div>
                                   

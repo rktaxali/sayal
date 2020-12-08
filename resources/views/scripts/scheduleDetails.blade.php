@@ -222,7 +222,7 @@
 
 		// create Employee Schedule
 		jQuery.ajax({
-				url: "{{ url('/createEmployee') }}",
+				url: "{{ url('/createEmployeeSchedule') }}",
 				method: 'post',
 				data: {
 					"_token": "{{ csrf_token() }}",

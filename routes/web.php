@@ -82,9 +82,11 @@ Route::post('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.
 Route::get('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.edit');
 Route::get('/approveSubmittedSchedules',[ScheduleController::class,'approveSubmittedSchedules'])->name('schedule.approveSubmittedSchedules');
 //Route::get('/getStoreSchedule',[ScheduleController::class,'getStoreSchedule'])->name('schedule.storeSchedule');
-Route::get('/viewAllSchedules',[ScheduleController::class,'viewAllSchedules'])->name('schedule.view');
-Route::post('/viewScheduleDetails',[ScheduleController::class,'viewScheduleDetails'])->name('schedule.viewDetails');
+Route::get('/viewAllSchedules',[ScheduleController::class,'viewAllSchedules'])->name('schedule.viewAllSchedules');
+Route::get('/viewStoreSchedule',[ScheduleController::class,'viewStoreSchedule'])->name('schedule.viewStoreSchedule');
 
+Route::post('/viewScheduleDetails',[ScheduleController::class,'viewScheduleDetails'])->name('schedule.viewDetails');
+Route::post('/viewStoreScheduleDetails',[ScheduleController::class,'viewStoreScheduleDetails'])->name('schedule.viewStoreScheduleDetails');
 
 
 
@@ -99,7 +101,7 @@ Route::post('/approveSchedule',[ScheduleController::class,'approveSchedule'])->n
 
 
 
-Route::post('/createEmployee',[ScheduleController::class,'createEmployee'])->name('schedule.createEmployee');	
+Route::post('/createEmployeeSchedule',[ScheduleController::class,'createEmployeeSchedule'])->name('schedule.createEmployeeSchedule');	
 
 
 

@@ -40,7 +40,7 @@
 			
 			<div class="modal-body">
 				
-				<form action="{{ route('schedule.createEmployee') }}" method="POST">
+				<form action="{{ route('schedule.createEmployeeSchedule') }}" method="POST">
 					@csrf
 					
 					<input type="text" id="scheduleCreate_user_id" name="scheduleCreate_user_id" hidden  >

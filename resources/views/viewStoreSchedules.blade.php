@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-12">
-            <h2>View Schedules</h2>
+            <h2>View Store Schedules</h2>
         </div>
     </div>
 
@@ -14,7 +14,7 @@
             
             @if ( count($schedules)  )
                 <form id="schedule-form"
-                    action="{{ route('schedule.viewDetails') }}" method="POST">
+                    action="{{ route('schedule.viewStoreScheduleDetails') }}" method="POST">
                                 @csrf
                         <table class="table table-bordered table-responsive-lg">
                             <tr>
@@ -45,12 +45,13 @@
                                     </td>
                                     
 									<td>
+                                        
                                         <button type="submit" 
                                                 name="schedule_id"
                                                 value = "{{$schedule->id}}"
                                                 class="btn btn-primary">
                                                 View
-                                        </button>
+                                         </button>
 										
                                     </td>  
 

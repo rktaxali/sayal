@@ -24,6 +24,7 @@
                                 <th>Create Warehouse Schedule</th>
 								<th>Approve Schedule</th>
 								<th>View All Schedule</th>
+                                <th>View Store Schedule</th>
                             </tr>
 
                             @foreach ($users as $user)
@@ -56,6 +57,12 @@
                                      <td>
                                         <input type="checkbox" id="view_all_schedules_{{$user->id}}" name="view_all_schedules_{{$user->id}}" 
                                             @if($user->view_all_schedules) Checked @endif 
+                                            value="1">       
+                                    </td>
+
+                                    <td>
+                                        <input type="checkbox" id="view_store_schedule_{{$user->id}}" name="view_store_schedule_{{$user->id}}" 
+                                            @if($user->view_store_schedule) Checked @endif 
                                             value="1">       
                                     </td>
                                     

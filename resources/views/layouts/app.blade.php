@@ -94,7 +94,13 @@
                             
                             @can('view_all_schedules')
 								 <li class="nav-item dropdown">
-									<a href="{{ route('schedule.view')}}" class="nav-link">View Schedules</a>
+									<a href="{{ route('schedule.viewAllSchedules')}}" class="nav-link">View Schedules</a>
+								</li>
+							@endcan
+
+                            @can('view_store_schedule')
+								 <li class="nav-item dropdown">
+									<a href="{{ route('schedule.viewStoreSchedule')}}" class="nav-link">Store Schedule</a>
 								</li>
 							@endcan
 

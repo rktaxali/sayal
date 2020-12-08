@@ -43,29 +43,25 @@ class ScheduleController extends Controller
 
 
 
-	// display schedules for the logged in user 
-	public function userSchedules()
+	// display 4 lateset schedules for the logged in user or the passed user_id
+	public function userSchedules($user_id = null)
 	{
-		$user_id = auth()->user()->id; 
-		$query = "SELECT s.id, s.start_date, '' as sch_data, '' as weekly_hours
+		$user_id = $user_id ? $user_id : auth()->user()->id; 
+		$query = "SELECT s.id, s.start_date, '' as sch_data,
+			 if(ess.weekly_hours, ess.weekly_hours,'') as weekly_hours
 			FROM schedules s
+			LEFT JOIN employee_schedules_summary ess ON ess.schedule_id = s.id AND ess.user_id = $user_id
 			WHERE s.approved_user_id IS NOT NULL 
 			ORDER BY s.id DESC LIMIT 4";
 
 		$schedules = DB::select($query);
-		
 		$i=0;
 		foreach ($schedules as $schedule)
 		{
 			// get weekly schedule and assign it to $schedule->sch_data
-			$schedules[$i]->sch_data = $this->getEmplScheduleData($schedule_id, $user_id);
-			// get weekly assigned hours and assign it to $schedule->weekly_hours
-			$schedules[$i]->weekly_hours = $this->getEmplScheduledHours($schedule->id, $user_id);
-			
+			$schedules[$i]->sch_data = $this->getEmplScheduleData($schedule->id, $user_id);
 			$i++;
 		}
-
-
 		return view('home',compact('schedules'));
 	}
 
@@ -152,7 +148,6 @@ class ScheduleController extends Controller
 			}
 
 			$schedule = Schedule::where('id','=',$schedule_id)->get()->first();
-			//dd($schedule);
 			// fetch data from all active employees for all days for the selcted schedules 
 			
 			// display all active employees and an Add/Edit button 
@@ -165,25 +160,6 @@ class ScheduleController extends Controller
 			$scheduleDetails = DB::select($query);
 			if ($scheduleDetails)
 			{
-
-				/*	
-				// get employee_schedules data for each employee for the current schedule_id
-				$query = "SELECT user_id, GROUP_CONCAT(' ',s.date, ': ', left(s.starttime,5), '-' ,left(s.endtime,5), ' ', st.name ) AS empl_schedule
-						FROM employee_schedules s
-						LEFT JOIN stores st ON s.store_id = st.id
-						WHERE s.schedule_id = $schedule_id
-						GROUP BY s.user_id";
-				$result= DB::select($query);
-				$array = (array)$result;
-				$schArray=[];
-				// convert $result into an associative array with user_id as key
-				foreach ($array as $key=>$val)
-				{
-					$schArray[$val->user_id] = $val->empl_schedule;
-				}
-				*/
-
-
 				// Update $scheduleDetails->schedule from $schArray
 				for($i=0; $i< count($scheduleDetails); $i++)
 				{
@@ -191,6 +167,8 @@ class ScheduleController extends Controller
 					$scheduleDetails[$i]->schedule = $this->getEmplScheduleData($schedule_id, $scheduleDetails[$i]->user_id) ; // (! empty($schArray[$scheduleDetails[$i]->user_id]))  ? $schArray[$scheduleDetails[$i]->user_id] : '';
 				}
 			}
+
+
 			$scheduleDays = $this->getScheduleDays();
 			return view('scheduleDetails',compact('schedule','scheduleDetails','stores','scheduleDays'));
 			
@@ -205,14 +183,30 @@ class ScheduleController extends Controller
 	{
 		if(auth()->user()->hasPermissionTo('create_store_schedule'))
         {
+
+
 			// first create a record in the schedules table with a date 7 days from the last start_date
-			$query = "SELECT DATE_ADD(start_date, INTERVAL 7 DAY) AS start_date, DATE_ADD(start_date, INTERVAL 6 DAY) AS schedule_start_date
+			$query = "SELECT DATE_ADD(start_date, INTERVAL 7 DAY) AS start_date, DATE_ADD(start_date, INTERVAL 6 DAY) AS start_date_minus_one
 					FROM schedules
 					ORDER BY id DESC LIMIT 1";
 			$result =  DB::select( DB::raw($query)); 
-			$row = $result[0];	
-			$start_date = $row->start_date;
-			$schedule_start_date = $row->schedule_start_date;
+			if ($result)
+			{
+				$row = $result[0];
+				$start_date = $row->start_date;
+				$start_date_minus_one = $row->start_date_minus_one;
+			}
+			else
+			{
+				// use next Monday as the start_date
+				$start_date = date("Y-m-d", strtotime('next monday'));
+				//$from_unix_time = mktime(0, 0, 0, $month, $day, $year);
+				$from_unix_time = mktime(0, 0, 0, substr($start_date,5,2), substr($start_date,8,2), substr($start_date,0,4));
+				$day_before = strtotime("yesterday", $from_unix_time);
+				$start_date_minus_one = date('Y-m-d', $day_before);
+			}	
+
+			
 			if (DB::table('schedules')->insert( 
 					[
 						'start_date' => $start_date,
@@ -231,14 +225,47 @@ class ScheduleController extends Controller
 						$query = "INSERT INTO schedule_dates 
 							(schedule_id, `day_id`, `date` )
 							VALUES
-							($schedule_id,$i,DATE_ADD('$schedule_start_date', INTERVAL $i DAY))";
+							($schedule_id,$i,DATE_ADD('$start_date_minus_one', INTERVAL $i DAY))";
 						DB::insert($query);
 						$i++;
 					}
 					
 				}
+				// Generate employee schedule records as per the default schedules available in the 
+				// employee_default_schedules table for $schedule_id
+				// for users that have 'status' = 'Active' and empl_type  in 'Store,Warehouse, Store/WareHouse'
+
+
+				/*
+				$query = "SELECT id AS user_id FROM users u
+					WHERE u.`status` = 'Active' 
+						AND u.empl_type IN ('Store','Warehouse','Store/Warehouse')";
+				$users = DB::select($query);
+			
+			foreach($users as $user)
+			{
+				// create a record in employee_schedules_summary table 
+				$ess_id = generateEmployeeSchedule($schedule_id, $user->user_id);
+
+			}
+		
+*/  
+
+				
+				
+				/*
+
+				SELECT e.user_id, e.day, e.store_id, e.starttime, endtime
+						FROM employee_schedules e
+						WHERE e.schedule_id = '$schedule_id'
+							AND e.user_id = '$user_id'
+							ORDER BY day";
+				*/
 				
 			}
+
+
+
 			 return back()
 				->with('success','New Schedule Created Successfully');
 			
@@ -341,38 +368,62 @@ class ScheduleController extends Controller
 	
 	*/
 	
-	public function createEmployee(Request $request)
+	public function createEmployeeSchedule(Request $request)
 	{
 		$retval = false;
-		//dd($request->scheduleCreate_user_id);
 		if(auth()->user()->hasPermissionTo('create_store_schedule'))
         {
 			$schedule_id = session()->get('schedule_id');	
+			$user_id = $request->input('scheduleCreate_user_id');
+			$ess_id = $this->generateEmployeeSchedule($schedule_id,$user_id);
 			for($i=1; $i<8; $i++)
 			{
 				$starttime = $request->input('starttime_'.$i);
 				$endtime = $request->input('endtime_'.$i);
-				
 				if ($starttime && $endtime)
 				{
 					DB::table('employee_schedules')->insert(
 						[
 							'schedule_id' => $schedule_id,
+							'ess_id' =>$ess_id,
 							'day' => $i,
 							'starttime' => $starttime,
 							'endtime' => $endtime,
-							'user_id'=> $request->input('scheduleCreate_user_id'),
+							'user_id'=> $user_id,
 							'date'=> $request->input('date_'.$i),
 							'store_id'=> $request->input('store_id_'.$i),
 						]
 					);		
 				}
+
 				
 			}
+			// Update weekly_hours in the employee_schedules_summary table
+			DB::table('employee_schedules_summary')
+              ->where('id', $ess_id)
+              ->update(['weekly_hours' => $this->getEmplScheduledHours( $schedule_id,$user_id)]);
+		
 			$retval = true;
 			 
 		}
 		return Response::json($retval);
+	}
+
+
+
+	// creates a record in the employee_schedules_summary table 
+	public function  generateEmployeeSchedule($schedule_id, $user_id)
+	{
+		DB::table('employee_schedules_summary')->insert(
+			[
+				'schedule_id' => $schedule_id,
+				'user_id'=> $user_id,
+				'created_user_id' => auth()->user()->id,
+				'created_at'=> date('Y-m-d H:i:s'),
+				'uuid' =>bin2hex(random_bytes(16)),
+			]
+		);		
+		return  DB::getPdo()->lastInsertId();
 	}
 
 
@@ -408,6 +459,12 @@ class ScheduleController extends Controller
 				}
 				
 			}
+			// Update weekly_hours in the employee_schedules_summary table
+			DB::table('employee_schedules_summary')
+			  ->where('user_id', $user_id)
+			  ->where('schedule_id',$schedule_id)
+              ->update(['weekly_hours' => $this->getEmplScheduledHours( $schedule_id,$user_id)]);
+
 			$retval = true;
 			 
 		}
@@ -485,11 +542,40 @@ class ScheduleController extends Controller
 	/**
 	 * For the passed $schedule_id, return a collection of schedules for each store 
 	 * Each store schedule list all employees, their daily schedule and total weekly hours.
+	 * 
+	 * 
+	 * 
+	 * array:8 [▼
+  0 => {#365 ▼
+    +"id": 1
+    +"name": "Scarborough"
+    +"phone": null
+    +"email": "scarborough@sayal.com"
+    +"address": null
+    +"city": null
+    +"postalcode": null
+    +"created_at": "2020-11-25 11:20:49"
+    +"schedule": array:7 [▼
+      "2020-12-14" => array:3 [▼
+        0 => {#1306 ▼
+          +"id": 7
+          +"name": "Ajay Sharma"
+          +"ess_id": 142
+          +"schedule_id": 1
+          +"user_id": 16
+          +"day": 1
+          +"date": "2020-12-14"
+          +"store_id": 1
+          +"starttime": "08:30:00"
+          +"endtime": "17:30:00"
+          +"created_at": null
+          +"updated_at": null
 	 */
 	public function viewScheduleDetails(Request $request)
 	{
 		$schedule_id = $request->schedule_id; 
-		$stores = DB::select('Select * from Stores');
+		$schedule = Schedule::find($schedule_id);
+		$stores = DB::select('Select * from stores');
 		$store_schedules = [];
 		$i=0;
 		foreach ($stores as $store)
@@ -499,10 +585,50 @@ class ScheduleController extends Controller
 			$stores[$i]->schedule = $store_schedule;
 			$i++;
 		}
-		dd($stores);
+		//dd($stores);
+		return view('viewAllStoresSchedule',compact('schedule','stores'));
 	}
 
 
+	public function viewStoreSchedule()
+	{
+		
+		if(auth()->user()->hasPermissionTo('view_store_schedule') )
+        {
+			$store_id = auth()->user()->store_id;
+			$schedules = Schedule::orderBy('id', 'desc')
+					->take(8)
+					->get();
+			return view('viewStoreSchedules',compact('schedules'));
+		}
+		
+
+	}
+
+	public function viewStoreScheduleDetails(Request $request)
+	{
+		$schedule_id = $request->schedule_id; 
+		$store_id = auth()->user()->store_id;
+
+		$schedule = Schedule::find($schedule_id);
+		// get store name
+		$store = DB::select("SELECT  `name` FROM stores where id = '$store_id ' ");
+		$row = $store[0];
+		$schedule->store_name = $row->name;
+
+		$schedule->store_schedule = $this->getStoreSchedule($schedule_id,$store_id);
+	
+		return view('viewSpecificStoresSchedule',compact('schedule'));
+	}
+
+
+	// Returns schedule data for a specific store
+	public function getStoreScheduleDetails($schedule_id, $store_id)
+	{
+		$schedule = Schedule::find($schedule_id);
+		$schedule->schedule = $this->getStoreSchedule($schedule_id,$store->id);
+		return view('viewStoresSchedule',compact('schedule'));
+	}
 	
 
 	// Returns store schedule for the passed schedule id
@@ -510,10 +636,7 @@ class ScheduleController extends Controller
 	{
 		$returnArray = [];
 		$dates = DB::table('schedule_dates')->where('schedule_id','=',$schedule_id)->get();
-		
 	
-
-
 		foreach($dates as $date)
 		{
 		//	dd($date->date, $date->id);
