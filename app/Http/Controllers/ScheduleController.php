@@ -47,8 +47,10 @@ class ScheduleController extends Controller
 	public function userSchedules($user_id = null)
 	{
 		$user_id = $user_id ? $user_id : auth()->user()->id; 
-		$query = "SELECT s.id, s.start_date, '' as sch_data,
-			 if(ess.weekly_hours, ess.weekly_hours,'') as weekly_hours
+		$query = "SELECT s.id, s.start_date, '' as sch_data, 
+			 if(ess.weekly_hours, ess.weekly_hours,'') as weekly_hours,
+			 ess.id AS ess_id,
+			 if(ess.schedule_accepted,date(schedule_accepted),'') as schedule_accepted
 			FROM schedules s
 			LEFT JOIN employee_schedules_summary ess ON ess.schedule_id = s.id AND ess.user_id = $user_id
 			WHERE s.approved_user_id IS NOT NULL 
@@ -236,32 +238,45 @@ class ScheduleController extends Controller
 				// for users that have 'status' = 'Active' and empl_type  in 'Store,Warehouse, Store/WareHouse'
 
 
-				/*
+			
 				$query = "SELECT id AS user_id FROM users u
 					WHERE u.`status` = 'Active' 
 						AND u.empl_type IN ('Store','Warehouse','Store/Warehouse')";
 				$users = DB::select($query);
+				
+				foreach($users as $user)
+				{
+					// create a record in employee_schedules_summary table 
+					$ess_id = $this->generateEmployeeSchedule($schedule_id, $user->user_id);
+
+					$query = "INSERT INTO employee_schedules
+							(
+								ess_id,   schedule_id, user_id, day,   date,  store_id, starttime, endtime, created_at
+							)
+							SELECT   $ess_id AS ess_id,  $schedule_id AS schedule_id, e.user_id, e.day, 
+									sd.date,  e.store_id, starttime, endtime, NOW() AS created_at
+										FROM employee_default_schedules e
+										INNER JOIN schedule_dates sd ON sd.schedule_id = $schedule_id 
+												AND e.day = sd.day_id
+										WHERE 
+											e.user_id = " . $user->user_id . "
+										ORDER BY sd.day_id
+										";
+					DB::insert($query);
+					// Update weekly_hours in employee_schedules_summary table
+					$query = "SELECT id, user_id
+							FROM employee_schedules_summary 
+							WHERE schedule_id = $schedule_id";
+					$usersToUpdate = DB::select($query);
+					foreach($usersToUpdate as $userToUpdate)
+					{				
+						// Update weekly_hours in the employee_schedules_summary table
+						DB::table('employee_schedules_summary')
+						->where('id', $userToUpdate->id)
+						->update(['weekly_hours' => $this->getEmplScheduledHours( $schedule_id,$userToUpdate->user_id)]);
+					}
+				}
 			
-			foreach($users as $user)
-			{
-				// create a record in employee_schedules_summary table 
-				$ess_id = generateEmployeeSchedule($schedule_id, $user->user_id);
-
-			}
-		
-*/  
-
-				
-				
-				/*
-
-				SELECT e.user_id, e.day, e.store_id, e.starttime, endtime
-						FROM employee_schedules e
-						WHERE e.schedule_id = '$schedule_id'
-							AND e.user_id = '$user_id'
-							ORDER BY day";
-				*/
-				
 			}
 
 
@@ -330,43 +345,7 @@ class ScheduleController extends Controller
 	}
 	
 	
-	
-	/*
-"_token" => "G6tAHvLhZpQZ8bxaJ1trJFf6zJT3GCFWlOgFCs86"
-       "_token" => "G6tAHvLhZpQZ8bxaJ1trJFf6zJT3GCFWlOgFCs86"
-      "scheduleCreate_user_id" => "5"
-      "date_1" => "2020-11-30"
-      "starttime_1" => "08:00"
-      "endtime_1" => "17:00"
-      "store_id_1" => "1"
-      "date_2" => "2020-12-01"
-      "starttime_2" => "08:00"
-      "endtime_2" => "17:00"
-      "store_id_2" => "1"
-      "date_3" => "2020-12-02"
-      "starttime_3" => "08:00"
-      "endtime_3" => "17:00"
-      "store_id_3" => "1"
-      "date_4" => "2020-12-03"
-      "starttime_4" => "08:00"
-      "endtime_4" => "17:00"
-      "store_id_4" => "1"
-      "date_5" => "2020-12-04"
-      "starttime_5" => "08:00"
-      "endtime_5" => "17:00"
-      "store_id_5" => "1"
-      "date_6" => "2020-12-05"
-      "starttime_6" => null
-      "endtime_6" => null
-      "store_id_6" => "1"
-      "date_7" => "2020-12-06"
-      "starttime_7" => null
-      "endtime_7" => null
-      "store_id_7" => "1"
-	
-	
-	
-	*/
+
 	
 	public function createEmployeeSchedule(Request $request)
 	{
@@ -652,6 +631,28 @@ class ScheduleController extends Controller
 		}
 		
 		return $returnArray;
+	}
+
+	
+	public function userAcceptSchedule(Request $request)
+	{
+		DB::table('employee_schedules_summary')
+			->where('id', $request->ess_id)
+			->update(['schedule_accepted' => date('Y-m-d H:i:s')]);
+		return back()
+			->with('success','Schedule marked as Acccepted.');
+
+	}
+
+	public function sendUserEmail(Request $request)
+	{
+		$email = 'rktaxali@gmail.com';
+		$schedule_id = 2;
+		$user_id = 18;
+		\Mail::to($email)
+			->send(new \App\Mail\UserSchedule($schedule_id,$user_id));
+
+
 	}
 
 

@@ -62,7 +62,7 @@
 
                             <div class="ml-12">
                                 <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-                                    <p>Sayal Employee Scheduling System has features to create, update and view Employee Schedule.</P>
+                                    <p>{!! $message !!}</P>
                                     <p>Please <a href="{{ route('login') }}" class="text-primary underline">Login</a> to continue.</p> 
                                 </div>
                                 <div>

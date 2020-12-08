@@ -40,9 +40,29 @@
                                                         </div>
                                                     </div>
                                                 @endforeach 
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                    Total hours: {{$schedule->weekly_hours }} 
+                                                <div class="row mb-2">
+                                                    <div class="col-4">
+                                                     Total Hrs: {{$schedule->weekly_hours }} 
+                                                    </div>
+                                                    <div class="col-8">
+                                                       @if($schedule->schedule_accepted )
+                                                            Schedule Accepted: {{$schedule->schedule_accepted }}
+                                                        @else
+
+                                                        <form  action="{{ route('schedule.userAcceptSchedule') }}" 
+                                                                method="POST">
+                                                            @csrf
+                                                            <button type="submit" 
+                                                                    name = "ess_id"
+                                                                    value="{{$schedule->ess_id}}"
+                                                                    class="btn btn-primary ">
+                                                                Accept Schedule
+                                                            </button>
+                                                        </form>
+
+                                                        
+                                                            
+                                                        @endif 
                                                     </div>
                                                 </div>
                                             @else

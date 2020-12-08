@@ -53,7 +53,6 @@ Route::post('/updateUser',[UserController::class,'update'])->name('user.update')
 */
 
 Route::get('/home', [ScheduleController::class, 'userSchedules'])->name('user.schedules');
-Route::post('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home.post');
 
 
 // Requirements: name parameter is required and it can contain only alpha characters
@@ -63,6 +62,9 @@ Route::get('/books/{name}', function($name='test'){
 });
 
 
+//Route::get('/userAcceptScheduleEmail/{ess_id}', function($ess_id='test'){
+//	return 'Hi ' . $ess_id;
+//});
 
 
 // Not Authorized Page
@@ -93,12 +95,20 @@ Route::post('/viewStoreScheduleDetails',[ScheduleController::class,'viewStoreSch
 Route::post('/createSchedule',[ScheduleController::class,'createSchedule'])->name('schedule.create');
 Route::post('/userScheduleBasicData',[ScheduleController::class,'userScheduleBasicData'])->name('user.scheduleBasicData');	
 Route::post('/userScheduleData',[ScheduleController::class,'userScheduleData'])->name('user.userScheduleData');	
+Route::post('/userAcceptSchedule',[ScheduleController::class,'userAcceptSchedule'])->name('schedule.userAcceptSchedule');	
+// Called from email sent to user /userAcceptSchedule/{ess_id}
+Route::get('/userAcceptScheduleEmail/{uuid}', [App\Http\Controllers\HomeController::class, 'userAcceptSchedule'])->name('home.userAcceptSchedule');
+
+
+
 Route::post('/updadeUserScheduleData',[ScheduleController::class,'updadeUserScheduleData'])->name('schedule.updadeUserSchedule');	
 Route::post('/deleteUserScheduleData',[ScheduleController::class,'deleteUserScheduleData'])->name('schedule.userSchedule');	
 Route::post('/saveAsDefaultSchedule',[ScheduleController::class,'saveAsDefaultSchedule'])->name('schedule.saveAsDefault');	
 Route::post('/submitForApproval',[ScheduleController::class,'submitForApproval'])->name('schedule.submitForApproval');	
 Route::post('/approveSchedule',[ScheduleController::class,'approveSchedule'])->name('schedule.approveSchedule');	
 
+// test 
+Route::get('/sendUserEmail',[ScheduleController::class,'sendUserEmail'])->name('schedule.sendUserEmail');
 
 
 Route::post('/createEmployeeSchedule',[ScheduleController::class,'createEmployeeSchedule'])->name('schedule.createEmployeeSchedule');	
