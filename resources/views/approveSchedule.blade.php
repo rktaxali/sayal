@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-12">
-            <h2>Manage Schedules</h2>
+            <h2>Approve Schedules..</h2>
         </div>
     </div>
 
@@ -41,7 +41,24 @@
                                             Being Prepared
                                         @endif
 
-                                        
+                                        @if($schedule->emails_sent_user_id)
+                                            <br><span class="text-success">Schedule Emails Sent on {{ $schedule->emails_sent_at }}</span>
+										@elseif ( $schedule->approved_user_id )
+										
+											                         
+											<button type="button" 
+													id="btnSendScheduleEmails_{{ $schedule->id }}"
+													name="btnSendScheduleEmails_{{ $schedule->id }}" 
+													onClick="sendScheduleEmails({{ $schedule->id }})"
+													class="btn btn-sm btn-secondary ml-4">
+														Send Emails
+											</button>
+											
+											<div id="spinnerSendEmails_{{ $schedule->id }}" 
+													class="spinner-border text-primary ml-2" 
+													style="visibility:hidden">
+											</div>    
+                                        @endif
                                         
                                     </td>
                                     
@@ -88,23 +105,7 @@
     </div>
 	
 	
-	<div class = "row ">
-        <div class="col-12 ">
-			<form id="new-schedule-form"
-							action="{{ route('schedule.create') }}" method="POST">
-                   @csrf
-`                  <button
-                        id="submitButton"
-                            type="button" 
-                            onClick="submitForm()"
-                            class="btn btn-primary ml-3">
-                        Create New Schedule
-                    </button>
-
-                    <div id="spinner" class="spinner-border text-primary ml-2" style="visibility:hidden"></div>
-			</form>
-		</div>
-	</div>
+	
  
 </div>
 
@@ -112,18 +113,7 @@
 
 
 <script>
-    function submitForm() {
-		console.log('submit forn');
-		
-        // disable Submit button
-        event.preventDefault();
-        var element = document.getElementById("submitButton");
-        element.disabled = true;
-        // display spinner and submit form
-        var element = document.getElementById("spinner");
-        element.style.visibility='visible';
-        document.getElementById('new-schedule-form').submit();
-    }
+    
 
     function submitForApproval(schedule_id) {
         event.preventDefault();
@@ -193,6 +183,42 @@
 
 
     
+    function sendScheduleEmails(schedule_id)
+    {
+        event.preventDefault(schedule_id);
+        let element1 = document.getElementById("btnSendScheduleEmails_"+schedule_id);
+		element1.innerText = 'Sending Emails ...';
+        element1.disabled = true;
+		// display spinner and submit form
+        let element2 = document.getElementById("spinnerSendEmails_"+schedule_id);
+        element2.style.visibility='visible';
+
+        jQuery.ajax({
+			url: "{{ url('/sendScheduleEmails') }}",
+			method: 'post',
+			data: {
+				"_token": "{{ csrf_token() }}",
+				'schedule_id' :schedule_id,
+			},
+			success: function(response){
+				if (response)
+				{
+					console.log(response);
+					dispayAlerrtMessage('Schedule Emails have been Sent.');
+                    // reload the schedule page
+                    setTimeout(function(){
+                       window.location.href = "/approveSubmittedSchedules";
+                        }, 1000);
+                    }
+			},
+			error: function(data) {
+				console.log(data);
+				
+			}
+		});			
+
+    }
+
 
 </script>
 

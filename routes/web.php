@@ -89,7 +89,7 @@ Route::get('/viewStoreSchedule',[ScheduleController::class,'viewStoreSchedule'])
 
 Route::post('/viewScheduleDetails',[ScheduleController::class,'viewScheduleDetails'])->name('schedule.viewDetails');
 Route::post('/viewStoreScheduleDetails',[ScheduleController::class,'viewStoreScheduleDetails'])->name('schedule.viewStoreScheduleDetails');
-
+Route::post('/sendScheduleEmails',[ScheduleController::class,'sendScheduleEmails'])->name('schedule.sendScheduleEmails');
 
 
 Route::post('/createSchedule',[ScheduleController::class,'createSchedule'])->name('schedule.create');

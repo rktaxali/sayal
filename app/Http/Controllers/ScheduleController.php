@@ -120,9 +120,11 @@ class ScheduleController extends Controller
 			$query = "SELECT *
 					FROM schedules s
 					WHERE s.prepared_user_id > 0
-					AND s.approved_user_id IS NULL";
+					ORDER BY id desc 
+					LIMIT 6
+					";
 			$schedules = DB::select($query);
-			return view('schedule',compact('schedules'));
+			return view('approveSchedule',compact('schedules'));
 		}
 	}
 	
@@ -643,18 +645,64 @@ class ScheduleController extends Controller
 			->with('success','Schedule marked as Acccepted.');
 
 	}
+	
+	public function sendScheduleEmails(Request $request)
+	{
+		$emailsCount = 0 ;
+		ini_set('max_execution_time', 900);  // 15 minutes 
+		// Fetch employees to send the schedule emails for the passed $schedule_id 
+		$retVal = [];
+		$schedule_id = $request->schedule_id;
+		$query = "SELECT ess.user_id, u.email, u.name
+			FROM employee_schedules_summary ess 
+			INNER JOIN users u ON ess.user_id = u.id
+			WHERE ess.schedule_id = '$schedule_id' ";
+		$result = DB::select($query);
+		foreach ($result as $user)
+		{
+			$this->sendUserScheduleEmail($schedule_id, $user->user_id,$user->email );
+			$emailsCount++;
+		}
+		
+		// store emails 
+		$query = "SELECT id as store_id, email FROM stores";
+		$result = DB::select($query);
+		foreach ($result as $store)
+		{
+			$this->sendStoresScheduleEmail($schedule_id, $store->store_id,$store->email );
+			$emailsCount++;
+		}
+	
+		$retVal = $emailsCount;
+		// Update schedules->email_sent_user_id
+		DB::table('schedules')
+			->where('id', $schedule_id)
+			->update(['emails_sent_user_id' => auth()->user()->id,
+					'emails_sent_at' => date('Y-m-d H:i:s')
+			]);
+		
+		
+		return Response::json($retVal);
+		
+	}
 
-	public function sendUserEmail(Request $request)
+	public function sendUserScheduleEmail($schedule_id, $user_id, $email)
 	{
 		$email = 'rktaxali@gmail.com';
-		$schedule_id = 2;
-		$user_id = 18;
 		\Mail::to($email)
 			->send(new \App\Mail\UserSchedule($schedule_id,$user_id));
 
 
 	}
 
+	public function sendStoresScheduleEmail($schedule_id, $store_id, $email)
+	{
+		$email = 'rktaxali@gmail.com';
+		\Mail::to($email)
+			->send(new \App\Mail\StoreSchedule($schedule_id,$store_id));
+
+
+	}
 
 
 }	
