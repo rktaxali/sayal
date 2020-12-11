@@ -81,6 +81,9 @@ Route::get('/task/create',[TaskController::class,'create'])->name('task.create')
 // Schedules
 Route::get('/schedule',[ScheduleController::class,'index'])->name('schedule.index');
 Route::post('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.edit');
+
+Route::post('/save_schedule_id_in_Session',[ScheduleController::class,'save_schedule_id_in_Session'])->name('schedule.save_schedule_id_in_Session');
+
 Route::get('/scheduleEdit',[ScheduleController::class,'edit'])->name('schedule.edit');
 Route::get('/approveSubmittedSchedules',[ScheduleController::class,'approveSubmittedSchedules'])->name('schedule.approveSubmittedSchedules');
 //Route::get('/getStoreSchedule',[ScheduleController::class,'getStoreSchedule'])->name('schedule.storeSchedule');

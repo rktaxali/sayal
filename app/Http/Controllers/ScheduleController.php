@@ -143,7 +143,20 @@ class ScheduleController extends Controller
 			if ( $request->method() === 'POST') 
 			{
 				// save $schedule_id for use at the time of saving data 
-				$schedule_id = $request->schedule_id;
+				if (! empty($request->schedule_id))
+				{
+					$schedule_id = $request->schedule_id;
+				}
+				elseif (! empty(session()->get('reopened_schedule_schedule_id')))
+				{
+					// we might have schedule_id saved in session 
+					$schedule_id = session()->get('reopened_schedule_schedule_id');
+				}
+				else
+				{
+					die("something went wrong while editing a schedule..");
+				}
+				
 				session()->put('schedule_id', $schedule_id);  
 			}
 			else
@@ -179,6 +192,20 @@ class ScheduleController extends Controller
 		}
 	}
 	
+
+	// Save $scheule_id in session 
+	public function save_schedule_id_in_Session(Request $request)
+	{
+		$retVal = false;
+		if ( $request->schedule_id)
+		{
+			session()->put('reopened_schedule_schedule_id', $request->schedule_id);  
+			$retVal = true;
+		}
+		return Response::json($retVal);
+	}
+
+
 	
 	// Create the next schedule record in the schedules table
 	// Also create 7 records (one for each day) in the schedule_dates table
@@ -554,20 +581,53 @@ class ScheduleController extends Controller
 	 */
 	public function viewScheduleDetails(Request $request)
 	{
-		$schedule_id = $request->schedule_id; 
+		// passed stores_schedule_id or employees_schedule_id. Both contain schedule_id
+		$schedule_id = $request->stores_schedule_id ? $request->stores_schedule_id : $request->employees_schedule_id;
 		$schedule = Schedule::find($schedule_id);
-		$stores = DB::select('Select * from stores');
-		$store_schedules = [];
-		$i=0;
-		foreach ($stores as $store)
+		if ( $request->stores_schedule_id )
 		{
-			$store_schedule = $this->getStoreSchedule($schedule_id,$store->id);
-			//$store_schedules[] = $store_schedule;
-			$stores[$i]->schedule = $store_schedule;
-			$i++;
+			$stores = DB::select('Select * from stores');
+			$store_schedules = [];
+			$i=0;
+			foreach ($stores as $store)
+			{
+				$store_schedule = $this->getStoreSchedule($schedule_id,$store->id);
+				//$store_schedules[] = $store_schedule;
+				$stores[$i]->schedule = $store_schedule;
+				$i++;
+			}
+			return view('viewAllStoresSchedule',compact('schedule','stores'));
 		}
-		//dd($stores);
-		return view('viewAllStoresSchedule',compact('schedule','stores'));
+		else
+		{
+			// Display schedule for each employee 
+			$schedule = Schedule::where('id','=',$schedule_id)->get()->first();
+			// fetch data from all active employees for all days for the selcted schedules 
+			
+			// display all active employees and schedule accepted/pending icon 
+			$query = "SELECT u.id as user_id, concat(u.firstname, ' ', u.lastname) AS name, '' as schedule, 
+							0 as weekly_hours,
+							s.schedule_accepted
+						FROM users u
+						LEFT JOIN employee_schedules_summary s ON u.id = s.user_id AND s.schedule_id = $schedule_id
+						WHERE u.`status` = 'active'
+						";
+			$scheduleDetails = DB::select($query);
+			if ($scheduleDetails)
+			{
+				// Update $scheduleDetails->schedule from $schArray
+				for($i=0; $i< count($scheduleDetails); $i++)
+				{
+					$scheduleDetails[$i]->weekly_hours = $this->getEmplScheduledHours($schedule_id,$scheduleDetails[$i]->user_id);
+					$scheduleDetails[$i]->schedule = $this->getEmplScheduleData($schedule_id, $scheduleDetails[$i]->user_id) ; // (! empty($schArray[$scheduleDetails[$i]->user_id]))  ? $schArray[$scheduleDetails[$i]->user_id] : '';
+				}
+			}
+
+
+			$scheduleDays = $this->getScheduleDays();
+			return view('scheduleDetailsEmployees',compact('schedule','scheduleDetails','scheduleDays'));
+		}
+		
 	}
 
 

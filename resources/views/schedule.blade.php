@@ -46,8 +46,24 @@
                                     </td>
                                     
 									<td>
-										<button type="submit" name="schedule_id" value ="{{ $schedule->id }}"  class="btn btn-sm btn-secondary">
-												Edit</button>
+                                         @if(! $schedule->approved_user_id &&  $schedule->prepared_user_id)
+                                            <button type="submit" 
+                                                name="schedule_id" 
+                                                value ="{{ $schedule->id }}"  
+                                                class="btn btn-sm btn-secondary">
+                                                    Edit
+                                            </button>
+                                        @endif
+
+                                        @if( $schedule->approved_user_id &&  $schedule->prepared_user_id)
+                                            <button type="button" 
+                                                name="schedule_id" 
+                                                value ="{{ $schedule->id }}"  
+                                                onclick = "changeApprovedSchedule('{{ $schedule->id }}')"
+                                                class="btn btn-sm btn-secondary">
+                                                    Change Approved Schedule 
+                                            </button>
+                                        @endif
 
                                         @if(! $schedule->approved_user_id && ! $schedule->prepared_user_id)
                                             <button type="button" 
@@ -58,16 +74,7 @@
                                                     Submit</button>
                                         @endif
 
-                                        @can('aprv_schedule')
-                                            @if(! $schedule->approved_user_id &&  $schedule->prepared_user_id)
-                                                <button type="button" 
-                                                    id="btnApproved"
-                                                    name="btnApproved" 
-                                                    onClick="approve_schedule({{ $schedule->id }})"
-                                                    class="btn btn-sm btn-secondary">
-                                                        Approve</button>
-                                            @endif
-										@endcan	
+                                       
                                     </td>  
 
                                     
@@ -189,6 +196,39 @@
 			}
 		});			
 
+    }
+
+
+    function changeApprovedSchedule(schedule_id)
+    {
+       let response =  confirm("Are you sure that you want to update the approved schedule?");
+       if (response)
+       {
+            // Save schedule_id in session and then submit the form
+            jQuery.ajax({
+                url: "{{ url('/save_schedule_id_in_Session') }}",
+                method: 'post',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    'schedule_id' :schedule_id,
+                    },
+                success: function(response){
+                    if (response)
+                    {
+                        // schedule_id saved. Now submit the form for editing 
+                        document.getElementById("schedule-form").submit();
+                    }
+                },
+                error: function(data) {
+                    console.log(data);
+                    
+                }
+            });			
+
+            //    
+
+           
+       }
     }
 
 

@@ -20,7 +20,7 @@
                             <tr>
                                 <th>Week Starting</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                <th>View</th>
                                
                             </tr>
 
@@ -46,10 +46,17 @@
                                     
 									<td>
                                         <button type="submit" 
-                                                name="schedule_id"
+                                                name="stores_schedule_id"
                                                 value = "{{$schedule->id}}"
                                                 class="btn btn-primary">
-                                                View
+                                                Stores' Schedule
+                                        </button>
+
+                                        <button type="submit" 
+                                                name="employees_schedule_id"
+                                                value = "{{$schedule->id}}"
+                                                class="btn btn-primary ml-4">
+                                                Employees' Schedule
                                         </button>
 										
                                     </td>  
