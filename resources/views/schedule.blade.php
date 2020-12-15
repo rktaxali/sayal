@@ -120,7 +120,6 @@
 
 <script>
     function submitForm() {
-		console.log('submit forn');
 		
         // disable Submit button
         event.preventDefault();

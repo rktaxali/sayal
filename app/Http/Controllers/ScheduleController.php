@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Schedule;
 use Illuminate\Support\Facades\DB;
 use Redirect,Response;
+use PDF;
 
 
 class ScheduleController extends Controller
@@ -646,20 +647,32 @@ class ScheduleController extends Controller
 
 	}
 
+	// The form will be posted either on clicking the  viewStoreSchedule button or 
+	// the downloadStoreSchedule button
 	public function viewStoreScheduleDetails(Request $request)
 	{
-		$schedule_id = $request->schedule_id; 
-		$store_id = auth()->user()->store_id;
+		if (! empty( $request->viewStoreSchedule))
+		{
+			$schedule_id = $request->viewStoreSchedule; 
+			$store_id = auth()->user()->store_id;
 
-		$schedule = Schedule::find($schedule_id);
-		// get store name
-		$store = DB::select("SELECT  `name` FROM stores where id = '$store_id ' ");
-		$row = $store[0];
-		$schedule->store_name = $row->name;
+			$schedule = Schedule::find($schedule_id);
+			// get store name
+			$store = DB::select("SELECT  `name` FROM stores where id = '$store_id ' ");
+			$row = $store[0];
+			$schedule->store_name = $row->name;
 
-		$schedule->store_schedule = $this->getStoreSchedule($schedule_id,$store_id);
-	
-		return view('viewSpecificStoresSchedule',compact('schedule'));
+			$schedule->store_schedule = $this->getStoreSchedule($schedule_id,$store_id);
+		
+			return view('viewSpecificStoresSchedule',compact('schedule'));	
+		}
+		elseif (! empty( $request->downloadStoreSchedule))
+		{
+			
+			$schedule_id = $request->downloadStoreSchedule; 
+			return redirect('/createStoreSchedulePDF/'.$schedule_id);
+			
+		}
 	}
 
 
@@ -762,6 +775,27 @@ class ScheduleController extends Controller
 			->send(new \App\Mail\StoreSchedule($schedule_id,$store_id));
 
 
+	}
+	
+	public function createStoreSchedulePDF($schedule_id)
+	{
+		$store_id = auth()->user()->store_id;
+		$query = "Select `name` FROM stores WHERE id = '$store_id'";
+		$result = DB::select($query);
+		$store_name = $result[0]->name;
+		
+		
+		$schedule = Schedule::find($schedule_id);
+		$schedule->store_name = $store_name;
+		$schedule->store_schedule = $this->getStoreSchedule($schedule_id,$store_id);
+	
+		  // share data to view
+		  view()->share('pdfStoreSchedules',compact('schedule'));
+		  $pdf = PDF::loadView('pdfStoreSchedules', compact('schedule'));
+
+		  // download PDF file with download method
+		  $filename = 'Schedule_' . $store_name  .'_' . $schedule->start_date . ".pdf";
+		  return $pdf->download( $filename);
 	}
 
 

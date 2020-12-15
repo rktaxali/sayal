@@ -117,5 +117,6 @@ Route::get('/sendUserEmail',[ScheduleController::class,'sendUserEmail'])->name('
 Route::post('/createEmployeeSchedule',[ScheduleController::class,'createEmployeeSchedule'])->name('schedule.createEmployeeSchedule');	
 
 
-
+Route::get('/createStoreSchedulePDF/{schedule_id}', [ScheduleController::class, 'createStoreSchedulePDF'])->name('schedule.createStoreSchedulePDF');
+Route::post('/createStoreSchedulePDF', [ScheduleController::class, 'createStoreSchedulePDF'])->name('schedule.createStoreSchedulePDF');
 

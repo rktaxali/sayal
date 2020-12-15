@@ -161,6 +161,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+		
 
         /*
          * Package Service Providers...
@@ -174,7 +175,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-
+		// for DomPdf package: 2020-12-11
+		Barryvdh\DomPDF\ServiceProvider::class,
     ],
 
     /*
@@ -226,6 +228,8 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+		// for DomPdf package
+		 'PDF' => Barryvdh\DomPDF\Facade::class,
 
     ],
 

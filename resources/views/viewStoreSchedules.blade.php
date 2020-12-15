@@ -45,14 +45,34 @@
                                     </td>
                                     
 									<td>
-                                        
-                                        <button type="submit" 
-                                                name="schedule_id"
-                                                value = "{{$schedule->id}}"
-                                                class="btn btn-primary">
-                                                View
-                                         </button>
+										<div class="float-left">
+											<button type="submit" 
+												name="viewStoreSchedule"
+												value = "{{$schedule->id}}"
+												class="btn btn-primary">
+												View
+											</button>
+										 </div>
+										<div class="float-left ml-4 "> 
 										
+											<button type="submit"
+													name="downloadStoreSchedule"
+													id="downloadStoreSchedule"
+													class="btn btn-default"
+													value = "{{$schedule->id}}"
+													 >
+
+											
+												<span 
+													class="material-icons text-success"
+													
+													title="Download" style="font-size: 32px; cursor: pointer; margin-top:-4px;">
+												get_app
+												</span>
+											</button>
+										
+											
+										</div>
                                     </td>  
 
                                     
@@ -82,42 +102,25 @@
 
 <script>
 
-/*
-    function submitForm() {
-		console.log('submit forn');
-		
-        // disable Submit button
-        event.preventDefault();
-        var element = document.getElementById("submitButton");
-        element.disabled = true;
-        // display spinner and submit form
-        var element = document.getElementById("spinner");
-        element.style.visibility='visible';
-        document.getElementById('new-schedule-form').submit();
-    }
 
-    function submitForApproval(schedule_id) {
+/*
+    function downloadSchedule(schedule_id) {
         event.preventDefault();
-        var element = document.getElementById("btnSubmitForApproval");
-        element.disabled = true;
+        document.getElementById("downloadStoreSchedule_"+schedule_id).disabled = true ;
        // 
        jQuery.ajax({
-			url: "{{ url('/submitForApproval') }}",
+			url: "{{ url('/createStoreSchedulePDF') }}",
 			method: 'post',
 			data: {
 				"_token": "{{ csrf_token() }}",
 				'schedule_id' :schedule_id,
 			},
 			success: function(response){
-				if (response)
-				{
-                    dispayAlerrtMessage('Schedule Successfully Submitted for Approval');
-                   // reload the schedule page
-                    setTimeout(function(){
-                        window.location.href = "/schedule";
-                    }, 1000);
-				
-				}
+			if (response)
+			{
+				dispayAlerrtMessage('Store Schedule downloaded Successfully.');
+				document.getElementById("downloadStoreSchedule_"+schedule_id).disabled = false ;
+			}
 			},
 			error: function(data) {
 				console.log(data);
@@ -128,40 +131,11 @@
 
 
     }
+*/
 
 
-    function approve_schedule(schedule_id)
-    {
-               event.preventDefault(schedule_id);
-        var element = document.getElementById("btnApproved");
-        element.disabled = true;
+    
 
-        jQuery.ajax({
-			url: "{{ url('/approveSchedule') }}",
-			method: 'post',
-			data: {
-				"_token": "{{ csrf_token() }}",
-				'schedule_id' :schedule_id,
-			},
-			success: function(response){
-                console.log(response)
-				if (response)
-				{
-					dispayAlerrtMessage('Schedule has been Approved.');
-                    // reload the schedule page
-                    setTimeout(function(){
-                        window.location.href = "/approveSubmittedSchedules";
-                        }, 1000);
-                    }
-			},
-			error: function(data) {
-				console.log(data);
-				
-			}
-		});			
-
-    }
-
- */
+ 
 </script>
 
