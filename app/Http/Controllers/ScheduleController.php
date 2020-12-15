@@ -173,7 +173,7 @@ class ScheduleController extends Controller
 						0 as weekly_hours
 						FROM users u
 						LEFT JOIN employee_schedules s ON u.id = s.user_id AND s.schedule_id = $schedule_id
-						WHERE u.`status` = 'active'
+						WHERE u.`status` = 'active' 
 						GROUP BY u.id, 2,3";
 			$scheduleDetails = DB::select($query);
 			if ($scheduleDetails)
@@ -549,7 +549,10 @@ class ScheduleController extends Controller
 
 	
 	/**
-	 * For the passed $schedule_id, return a collection of schedules for each store 
+	 * Prepares AllEmployees or AllStores Schedule for display or download 
+	 * When it prepares schedule for employees, it also lists total weekly Hours
+	 * 
+	 For the passed $schedule_id, return a collection of schedules for each store 
 	 * Each store schedule list all employees, their daily schedule and total weekly hours.
 	 * 
 	 * 
@@ -582,11 +585,12 @@ class ScheduleController extends Controller
 	 */
 	public function viewScheduleDetails(Request $request)
 	{
-		// passed stores_schedule_id or employees_schedule_id. Both contain schedule_id
-		$schedule_id = $request->stores_schedule_id ? $request->stores_schedule_id : $request->employees_schedule_id;
-		$schedule = Schedule::find($schedule_id);
-		if ( $request->stores_schedule_id )
+		// There are 4 Submit Buttons: stores_schedule_id, employees_schedule_id, downloadEmployeeSchedule &&  downloadAllStoresSchedule. 
+		// All contain schedule_id
+		if ( ! empty($request->stores_schedule_id) )
 		{
+			$schedule_id = $request->stores_schedule_id;
+			$schedule = Schedule::find($schedule_id);
 			$stores = DB::select('Select * from stores');
 			$store_schedules = [];
 			$i=0;
@@ -599,10 +603,12 @@ class ScheduleController extends Controller
 			}
 			return view('viewAllStoresSchedule',compact('schedule','stores'));
 		}
-		else
+		elseif  ( ! empty($request->employees_schedule_id) )
 		{
+			$schedule_id = $request->employees_schedule_id;
+			$schedule = Schedule::find($schedule_id);
 			// Display schedule for each employee 
-			$schedule = Schedule::where('id','=',$schedule_id)->get()->first();
+			//$schedule = Schedule::where('id','=',$schedule_id)->get()->first();
 			// fetch data from all active employees for all days for the selcted schedules 
 			
 			// display all active employees and schedule accepted/pending icon 
@@ -611,7 +617,7 @@ class ScheduleController extends Controller
 							s.schedule_accepted
 						FROM users u
 						LEFT JOIN employee_schedules_summary s ON u.id = s.user_id AND s.schedule_id = $schedule_id
-						WHERE u.`status` = 'active'
+						WHERE u.`status` = 'active' AND u.empl_type in ('Store','Warehouse','Store/Warehouse')
 						";
 			$scheduleDetails = DB::select($query);
 			if ($scheduleDetails)
@@ -626,7 +632,19 @@ class ScheduleController extends Controller
 
 
 			$scheduleDays = $this->getScheduleDays();
-			return view('scheduleDetailsEmployees',compact('schedule','scheduleDetails','scheduleDays'));
+			return view('viewScheduleDetailsEmployees',compact('schedule','scheduleDetails','scheduleDays'));
+		}
+		elseif ( ! empty($request->downloadEmployeeSchedule)) 
+		{
+			// PDF for each employee 
+			$schedule_id = $request->downloadEmployeeSchedule; 
+			return redirect('/createAllEmployeesSchedulePDF/'.$schedule_id);
+		}
+		elseif ( ! empty($request->downloadAllStoresSchedule)) 
+		{
+			// PDF for all stores
+			$schedule_id = $request->downloadAllStoresSchedule; 
+			return redirect('/createAllStoresSchedulePDF/'.$schedule_id);
 		}
 		
 	}
@@ -798,6 +816,69 @@ class ScheduleController extends Controller
 		  return $pdf->download( $filename);
 	}
 
+
+	public function createAllEmployeesSchedulePDF($schedule_id)
+	{
+		$schedule = Schedule::find($schedule_id);
+		// Display schedule for each employee 
+		//$schedule = Schedule::where('id','=',$schedule_id)->get()->first();
+		// fetch data from all active employees for all days for the selcted schedules 
+		
+		// Get each active Employee  active employees and schedule accepted/pending icon 
+		$query = "SELECT u.id as user_id, concat(u.firstname, ' ', u.lastname) AS name, '' as schedule, 
+						0 as weekly_hours,u.max_hours, u.min_hours,
+						s.schedule_accepted
+					FROM users u
+					LEFT JOIN employee_schedules_summary s ON u.id = s.user_id AND s.schedule_id = $schedule_id
+					WHERE u.`status` = 'active' AND u.empl_type in ('Store','Warehouse','Store/Warehouse')
+					";
+		$scheduleDetails = DB::select($query);
+		if ($scheduleDetails)
+		{
+			// Update $scheduleDetails->schedule from $schArray
+			for($i=0; $i< count($scheduleDetails); $i++)
+			{
+				$scheduleDetails[$i]->weekly_hours = $this->getEmplScheduledHours($schedule_id,$scheduleDetails[$i]->user_id);
+				$scheduleDetails[$i]->schedule = $this->getEmplScheduleData($schedule_id, $scheduleDetails[$i]->user_id) ; // (! empty($schArray[$scheduleDetails[$i]->user_id]))  ? $schArray[$scheduleDetails[$i]->user_id] : '';
+			}
+		}
+
+		$scheduleDays = $this->getScheduleDays();
+					
+			// share data to view
+		view()->share('pdfScheduleDetailsEmployees',compact('schedule','scheduleDetails','scheduleDays'));
+		$pdf = PDF::loadView('pdfScheduleDetailsEmployees', compact('schedule','scheduleDetails','scheduleDays'));
+
+		  // download PDF file with download method
+		  $filename = 'EmployeesSchedule_' . $schedule->start_date . ".pdf";
+		  return $pdf->download( $filename);
+			
+	}
+	
+	
+	
+	public function createAllStoresSchedulePDF($schedule_id)
+	{
+		$schedule = Schedule::find($schedule_id);
+		$stores = DB::select('Select * from stores');
+		$store_schedules = [];
+		$i=0;
+		foreach ($stores as $store)
+		{
+			$store_schedule = $this->getStoreSchedule($schedule_id,$store->id);
+			//$store_schedules[] = $store_schedule;
+			$stores[$i]->schedule = $store_schedule;
+			$i++;
+		}
+		
+		// share data to view
+		view()->share('pdfAllStoresSchedule',compact('schedule','stores'));
+		$pdf = PDF::loadView('pdfAllStoresSchedule', compact('schedule','stores'));
+
+		// download PDF file with download method
+		$filename = 'AllStoresSchedule_' . $schedule->start_date . ".pdf";
+		return $pdf->download( $filename);
+	}
 
 }	
 

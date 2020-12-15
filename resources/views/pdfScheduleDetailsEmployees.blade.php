@@ -5,55 +5,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Store Schedule</title>
+    <title>Employees' Schedule</title>
     
 </head>
 
 	<body>
 		<div class="container mt-5">
+		
+		 <h2 class="text-center mb-3">Employees' Schedule for the  Week Starting {{$schedule->start_date }}</h2>
+
+        @if($schedule->approved_user_id)
+			<h3>Status: Approved</h3>
+		@else
+			<h3>Status: Not Approved</h3>
+		@endif
+		
 			   
 					<table class="table table-striped table-bordered table-responsive-lg">
 					  <thead>
 						<tr>
-						  <th scope="col" >Name</th>
-						  <th scope="col">Schedule</th>
-						  <th scope="col" >Accepted?</th>
+						  <th scope="col" width="100" align='left' >Name</th>
+						  <th scope="col" width="300" align='left'>Schedule</th>
+						  <th scope="col" width="75" align='left' >Accepted?</th>
 							
 						</tr>
 					  </thead>
 					  <tbody>
 					  @foreach ($scheduleDetails as $schedule)
-						  <tr scope="row"  style="padding:2px 5px 2px 5px">
-							<td style="padding:2px 5px 2px 5px">
-							  {{ $schedule->name}}
+						  <tr scope="row" >
+							<td   style="padding:2px 5px 2px 5px; text-align:left;vertical-align:top;"   >
+							  {{ $schedule->name}}<br>
+							   Hours: {{ $schedule->weekly_hours}}<br>
+							   Min: {{ $schedule->min_hours}}<br>
+							   Max : {{ $schedule->max_hours}}<br>
 							</td>
 											
 							<td style="padding:2px 5px 2px 5px">
-							  <div class="row">
-								@foreach($schedule->schedule as $data)
-								  
-									<div class="col-6">
-										<div class="row">
-											<div class="col-3">{{ $data->date }}</div>
-											<div class="col-4">{{ $data->starttime }} - {{ $data->endtime }}</div>
-											<div class="col-3">{{ $data->store_name }}</div>
-										</div>
-									</div>
-								  
-								@endforeach 
-							  </div>
+								<table>
+									<tbody>
+									@foreach($schedule->schedule as $data)
+									  
+										<tr scope="row" >
+												<td scope="col" width="75" align='left'>{{ $data->date }}</td>
+												<td scope="col" width="100" align='left'>{{ $data->starttime }} - {{ $data->endtime }}</td>
+												<td scope="col" width="100" align='left'>{{ $data->store_name }}</td>
+										</tr>
+									  
+									@endforeach 
+									</tbody>
+								</table>
 
 							</td>
-							<td style="padding:2px 5px 2px 5px">
+							<td  style="padding:2px 5px 2px 5px; text-align:left;vertical-align:top;"   >
 							  @if( $schedule->schedule_accepted )
 								
 
-								<span class="material-icons text-success" style="font-size:xx-large;" >
-								  check_circle
+								<span class="text-success"  >
+								  Accepted
 								</span>
 							  @else
-								<span class="material-icons text-info" style="font-size:xx-large;" >
-									pending_actions
+								<span class="text-warning"  >
+									Pennding
 								</span>
 
 							  @endif	

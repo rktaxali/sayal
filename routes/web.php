@@ -118,5 +118,7 @@ Route::post('/createEmployeeSchedule',[ScheduleController::class,'createEmployee
 
 
 Route::get('/createStoreSchedulePDF/{schedule_id}', [ScheduleController::class, 'createStoreSchedulePDF'])->name('schedule.createStoreSchedulePDF');
-Route::post('/createStoreSchedulePDF', [ScheduleController::class, 'createStoreSchedulePDF'])->name('schedule.createStoreSchedulePDF');
+//Route::post('/createStoreSchedulePDF', [ScheduleController::class, 'createStoreSchedulePDF'])->name('schedule.createStoreSchedulePDF');
+Route::get('/createAllEmployeesSchedulePDF/{schedule_id}', [ScheduleController::class, 'createAllEmployeesSchedulePDF'])->name('schedule.createAllEmployeesSchedulePDF');
+Route::get('/createAllStoresSchedulePDF/{schedule_id}', [ScheduleController::class, 'createAllStoresSchedulePDF'])->name('schedule.createAllStoresSchedulePDF');
 

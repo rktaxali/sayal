@@ -28,7 +28,8 @@
                   @foreach ($scheduleDetails as $schedule)
                       <tr scope="row"  style="padding:2px 5px 2px 5px">
                         <td style="padding:2px 5px 2px 5px">
-                          {{ $schedule->name}}
+                          {{ $schedule->name}}<br>
+						   Hrs: {{ $schedule->weekly_hours}}
                         </td>
                                         
                         <td style="padding:2px 5px 2px 5px">

@@ -52,17 +52,35 @@
                                                 Stores' Schedule
                                         </button>
 										
+										<button type="submit"
+													name="downloadAllStoresSchedule"
+													id="downloadAllStoresSchedule"
+													class="btn btn-default"
+													value = "{{$schedule->id}}"
+													 >
+
+											
+												<span 
+													class="material-icons text-success"
+													
+													title="Download" style="font-size: 32px; cursor: pointer; margin-top:-4px;">
+												get_app
+												</span>
+										</button>
+										
 										
 
                                         <button type="submit" 
                                                 name="employees_schedule_id"
                                                 value = "{{$schedule->id}}"
-                                                class="btn btn-primary ml-4">
+                                                class="btn btn-primary ml-5"
+												
+												>
                                                 Employees' Schedule
                                         </button>
 										
 										<button type="submit"
-													name="downloadStoreSchedule"
+													name="downloadEmployeeSchedule"
 													id="downloadStoreSchedule"
 													class="btn btn-default"
 													value = "{{$schedule->id}}"
@@ -75,7 +93,7 @@
 													title="Download" style="font-size: 32px; cursor: pointer; margin-top:-4px;">
 												get_app
 												</span>
-											</button>
+										</button>
 										
 										
                                     </td>  
