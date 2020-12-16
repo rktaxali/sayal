@@ -48,6 +48,9 @@ class ScheduleController extends Controller
 	public function userSchedules($user_id = null)
 	{
 		$user_id = $user_id ? $user_id : auth()->user()->id; 
+		$empl_type =  auth()->user()->empl_type;
+		$showSchedule = $empl_type === 'Store' || $empl_type ==='Warehouse' || $empl_type === 'Store/Warehouse';
+		
 		$query = "SELECT s.id, s.start_date, '' as sch_data, 
 			 if(ess.weekly_hours, ess.weekly_hours,'') as weekly_hours,
 			 ess.id AS ess_id,
@@ -65,7 +68,7 @@ class ScheduleController extends Controller
 			$schedules[$i]->sch_data = $this->getEmplScheduleData($schedule->id, $user_id);
 			$i++;
 		}
-		return view('home',compact('schedules'));
+		return view('home',compact('schedules','showSchedule'));
 	}
 
 

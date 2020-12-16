@@ -25,14 +25,22 @@ class UserController extends Controller
 	
 	
 	
-	public function index()
+	public function index($exclueNonStore_warehouse_Staff=false )
 	{
 		// displays list of users 
 		if (auth()->user()->hasPermissionTo('create_user'))
 		{
 			// get list of users and pass it to the userlist view
-			$users = User::get();
-			return view('userlist',compact('users'));
+			if( $exclueNonStore_warehouse_Staff)
+			{
+				$users = User::where('empl_type','<>','Front Office')->orderBy('name')->get();
+			}
+			else
+			{
+				$users = User::orderBy('name')->get();
+			}
+			
+			return view('userlist',compact('users','exclueNonStore_warehouse_Staff'));
 		}
 			
 		else

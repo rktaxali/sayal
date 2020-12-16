@@ -4,16 +4,26 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-12">
-            <h2>Manage Users</h2>
+            <h2>Manage Users @if($exclueNonStore_warehouse_Staff) - Excludes Front Office Staff  @endif</h2>
         </div>
     </div>
+	
+	<div class = "row mb-2">
+		<div class="col-12 ">
+			@if($exclueNonStore_warehouse_Staff)
+				<a href="/userList">Show All Staff Members</a>
+			@else
+				<a href="/userList/true">Hide Front Office Staff</a>
+			@endif
+		</div>
+	</div>
 
    
     <div class = "row ">
         <div class="col-12 ">
             
             @if ( count($users)  )
-                <form id="permisisons-form"
+                <form id="userList-form"
                     action="{{ route('user.edit') }}" method="GET">
                                 @csrf
                         <table class="table table-bordered table-responsive-lg">
@@ -80,7 +90,7 @@
         // display spinner and submit form
         var element = document.getElementById("spinner");
         element.style.visibility='visible';
-        document.getElementById('permisisons-form').submit();
+        document.getElementById('userList-form').submit();
     }
 
 </script>

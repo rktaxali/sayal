@@ -40,7 +40,7 @@ Route::get('/changePassword',[ChangePasswordController::class,'index'])->name('c
 
 // users routes
 Route::post('/createUser',[UserController::class,'create'])->name('user.create');	
-Route::get('/userList',[UserController::class,'index'])->name('user.list');	
+Route::get('/userList/{exclueNonStore_warehouse_Staff?}',[UserController::class,'index'])->name('user.list');	  // optional Parameter
 Route::get('/editUser',[UserController::class,'edit'])->name('user.edit');	
 Route::post('/updateUser',[UserController::class,'update'])->name('user.update');	
 		  
