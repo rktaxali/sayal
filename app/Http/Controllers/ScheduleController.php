@@ -172,12 +172,15 @@ class ScheduleController extends Controller
 			// fetch data from all active employees for all days for the selcted schedules 
 			
 			// display all active employees and an Add/Edit button 
-			$query = "SELECT u.id as user_id, concat(u.firstname, ' ', u.lastname) AS name, '' as schedule, COUNT(s.id) AS howmany,
+			$query = "SELECT u.id as user_id, concat(u.firstname, ' ', u.lastname) AS name, '' as schedule, 
+					u.min_hours, u.max_hours,
+					COUNT(s.id) AS howmany,
 						0 as weekly_hours
 						FROM users u
 						LEFT JOIN employee_schedules s ON u.id = s.user_id AND s.schedule_id = $schedule_id
 						WHERE u.`status` = 'active' 
-						GROUP BY u.id, 2,3";
+						     AND u.empl_type IN ('Store','Warehouse','Store/Warehouse')
+						GROUP BY u.id, 2,3,4,5";
 			$scheduleDetails = DB::select($query);
 			if ($scheduleDetails)
 			{
@@ -616,7 +619,7 @@ class ScheduleController extends Controller
 			
 			// display all active employees and schedule accepted/pending icon 
 			$query = "SELECT u.id as user_id, concat(u.firstname, ' ', u.lastname) AS name, '' as schedule, 
-							0 as weekly_hours,
+							0 as weekly_hours, u.min_hours, u.max_hours,
 							s.schedule_accepted
 						FROM users u
 						LEFT JOIN employee_schedules_summary s ON u.id = s.user_id AND s.schedule_id = $schedule_id

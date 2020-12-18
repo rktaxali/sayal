@@ -13,7 +13,7 @@
 
 
 	
-	<div class="modal-dialog" style="max-width:900px;" role="document">
+	<div class="modal-dialog" style="max-width:1000px;" role="document">
 	
 		
 		

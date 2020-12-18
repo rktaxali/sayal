@@ -29,6 +29,7 @@
                         <table class="table table-bordered table-responsive-lg">
                             <tr>
                                 <th>Name</th>
+								<th>Employee Type</th>
                                 <th>Edit</th>
                                
                             </tr>
@@ -38,11 +39,15 @@
                                     <td>
                                         {{ $user->firstname }} {{ $user->lastname }}
                                     </td>
-                                    
+									
+                                    <td>
+                                        {{ $user->empl_type }} 
+                                    </td>
+									
 									<td>
-										
 											<button type="submit" name="edit_user_id" value ="{{ $user->id }}"  class="btn btn-sm btn-secondary">
-												Edit</button>
+												Edit
+											</button>
                                     </td>  
 
                                     

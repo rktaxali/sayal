@@ -29,7 +29,7 @@
                       <tr scope="row"  style="padding:2px 5px 2px 5px">
                         <td style="padding:2px 5px 2px 5px">
                           {{ $schedule->name}}<br>
-						   Hrs: {{ $schedule->weekly_hours}}
+						   Hrs: <span title="Min:{{$schedule->min_hours}}, Max:{{$schedule->max_hours}} ">{{ $schedule->weekly_hours}}</span>
                         </td>
                                         
                         <td style="padding:2px 5px 2px 5px">
