@@ -46,7 +46,7 @@
                                     </td>
                                     
 									<td>
-                                         @if(! $schedule->approved_user_id &&  $schedule->prepared_user_id)
+                                         @if(  ! $schedule->prepared_user_id)
                                             <button type="submit" 
                                                 name="schedule_id" 
                                                 value ="{{ $schedule->id }}"  

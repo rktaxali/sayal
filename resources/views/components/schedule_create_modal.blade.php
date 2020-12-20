@@ -46,7 +46,7 @@
 					<input type="text" id="scheduleCreate_user_id" name="scheduleCreate_user_id" hidden  >
 					
 					<div class="row border-bottom bg-light" style="margin-top:-12px; margin-bottom:12px;">
-						<div class="col-2">
+						<div class="col-3">
 								Date
 						</div>
 						
@@ -74,10 +74,10 @@
 					@foreach($scheduleDays as $sch)			
 						<div class="row">
 						
-							<div class="col-2">
+							<div class="col-3">
 								<input type="text" id="date_{{$sch->day_id}}" name="date_{{$sch->day_id}}" value="{{$sch->date}}" hidden  >
 								{{$sch->date}}  {{$sch->day_abbr}} 
-								
+								&nbsp;&nbsp;{{$sch->holiday}}
 								
 							</div>
 						
@@ -134,6 +134,7 @@
 									delete
 								</span>
 								<span id="sch_ok_{{$sch->day_id}}" class="material-icons text-success" style="display:none">check</span>
+								<span id="vacation_{{$sch->day_id}}"></span>
 							</div>
 						
 						</div>

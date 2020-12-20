@@ -46,7 +46,7 @@
 					<input type="text" id="scheduleCreate_user_id" name="scheduleCreate_user_id" hidden  >
 					
 					<div class="row border-bottom bg-light" style="margin-top:-12px; margin-bottom:12px;">
-						<div class="col-2">
+						<div class="col-3">
 								Date
 						</div>
 						
@@ -70,14 +70,18 @@
 					
 					
 					
-								
+				@if($scheduleDays)				
 					@foreach($scheduleDays as $sch)			
 						<div class="row">
 						
-							<div class="col-2">
-								<input type="text" id="edit_date_{{$sch->day_id}}" name="edit_date_{{$sch->day_id}}" value="{{$sch->date}}" hidden  >
+							<div class="col-3">
+								<input 
+									type="text" 
+									id="edit_date_{{$sch->day_id}}" 
+									name="edit_date_{{$sch->day_id}}" 
+									value="{{$sch->date}}" hidden  >
 								{{$sch->date}}  {{$sch->day_abbr}} 
-								
+									&nbsp;&nbsp;{{$sch->holiday}}
 							</div>
 						
 							
@@ -135,14 +139,14 @@
 								</span>
 								
 								<span id="edit_sch_ok_{{$sch->day_id}}" class="material-icons text-success" style="display:none">check</span>
-								
+								<span id="edit_vacation_{{$sch->day_id}}"></span>
 								
 							</div>
 						
 						
 						</div>
 					@endforeach
-
+				@endif
 					<div class="row">
 						<div class="col-12">
 							Min Hours: <span id='edit_min_hours' class="ml-1 mr-4"></span>Max Hours: <span id='edit_max_hours' class="ml-1 mr-4"></span>

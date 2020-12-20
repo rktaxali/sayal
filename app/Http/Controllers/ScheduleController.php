@@ -76,7 +76,8 @@ class ScheduleController extends Controller
 	{
 		// get weekly schedule and assign it to $schedule->sch_data
 		$query = "SELECT s.date, LEFT(s.starttime,5) AS starttime, LEFT(s.endtime,5) AS endtime, s.store_id,
-			stores.name AS store_name
+			stores.name AS store_name,
+			'' as holiday
 			FROM employee_schedules s
 			INNER JOIN stores ON s.store_id = stores.id
 			WHERE s.schedule_id = '" .$schedule_id  ."' AND s.user_id = '$user_id'";
@@ -170,18 +171,20 @@ class ScheduleController extends Controller
 
 			$schedule = Schedule::where('id','=',$schedule_id)->get()->first();
 			// fetch data from all active employees for all days for the selcted schedules 
-			
+	
 			// display all active employees and an Add/Edit button 
 			$query = "SELECT u.id as user_id, concat(u.firstname, ' ', u.lastname) AS name, '' as schedule, 
 					u.min_hours, u.max_hours,
 					COUNT(s.id) AS howmany,
-						0 as weekly_hours
+						0 as weekly_hours, 
+						'' as holiday
 						FROM users u
 						LEFT JOIN employee_schedules s ON u.id = s.user_id AND s.schedule_id = $schedule_id
 						WHERE u.`status` = 'active' 
 						     AND u.empl_type IN ('Store','Warehouse','Store/Warehouse')
 						GROUP BY u.id, 2,3,4,5";
 			$scheduleDetails = DB::select($query);
+			
 			if ($scheduleDetails)
 			{
 				// Update $scheduleDetails->schedule from $schArray
@@ -191,7 +194,6 @@ class ScheduleController extends Controller
 					$scheduleDetails[$i]->schedule = $this->getEmplScheduleData($schedule_id, $scheduleDetails[$i]->user_id) ; // (! empty($schArray[$scheduleDetails[$i]->user_id]))  ? $schArray[$scheduleDetails[$i]->user_id] : '';
 				}
 			}
-
 
 			$scheduleDays = $this->getScheduleDays();
 			return view('scheduleDetails',compact('schedule','scheduleDetails','stores','scheduleDays'));
@@ -294,6 +296,9 @@ class ScheduleController extends Controller
 										FROM employee_default_schedules e
 										INNER JOIN schedule_dates sd ON sd.schedule_id = $schedule_id 
 												AND e.day = sd.day_id
+										# Also ensure that sd.date is not a holiday and the user is not on vacation on that day 
+											AND sd.date NOT IN (SELECT `date` FROM holiday)
+											  	AND sd.date NOT IN (SELECT `date` FROM vacation_details WHERE user_id = " . $user->user_id . ")
 										WHERE 
 											e.user_id = " . $user->user_id . "
 										ORDER BY sd.day_id
@@ -329,11 +334,13 @@ class ScheduleController extends Controller
 		$schedule_id = session()->get('schedule_id');
 		$user_id =  $request->user_id;
 		$query = "SELECT `name`, if(eds.store_id IS NULL, u.store_id, eds.store_id) AS store_id, 
-				sd.date, d.day_abbr, u.min_hours, u.max_hours, eds.starttime, eds.endtime
+					sd.date, d.day_abbr, u.min_hours, u.max_hours, eds.starttime, eds.endtime,
+					if(v.date is NULL,'','Vacation') AS vacation
 				FROM users u 
 				INNER JOIN schedule_dates sd ON sd.schedule_id = '$schedule_id'
 				INNER JOIN days d ON sd.day_id = d.id 
 				LEFT JOIN employee_default_schedules eds ON u.id = eds.user_id AND d.id = eds.day
+				LEFT JOIN vacation_details v ON sd.date = v.date AND v.user_id = u.id
 				WHERE u.id = '$user_id' ";
 		$emplSchedule =  DB::select( DB::raw($query)); 		
 		
@@ -349,14 +356,18 @@ class ScheduleController extends Controller
 		$schedule_id = session()->get('schedule_id');
 		$user_id =  $request->user_id;
 		session()->put('schedule_user_id',$user_id);
-		$query = "SELECT `name`,  sd.date, d.day_abbr, u.min_hours, u.max_hours, 
-				left(s.starttime,5) as starttime, left(s.endtime,5) as endtime,
-				s.store_id
+		$query = "SELECT u.name,  sd.date, d.day_abbr, u.min_hours, u.max_hours, 
+					left(s.starttime,5) as starttime, left(s.endtime,5) as endtime,
+					s.store_id,
+					if(v.date is NULL,'','Vacation') AS vacation
 				FROM users u 
 				INNER JOIN schedule_dates sd ON sd.schedule_id = '$schedule_id'
 				INNER JOIN days d ON sd.day_id = d.id 
 				LEFT JOIN employee_schedules s ON s.schedule_id = '$schedule_id' AND s.user_id = u.id AND d.id = s.day
-				WHERE u.id = '$user_id'";
+				LEFT JOIN vacation_details v ON sd.date = v.date  AND v.user_id = u.id
+				WHERE u.id = '$user_id'
+					ORDER BY date
+				";
 		$emplSchedule =  DB::select( DB::raw($query)); 		
 		
 		
@@ -367,14 +378,20 @@ class ScheduleController extends Controller
 	}
 	
 	
-	// get date and day_abbr for the current schedule
+	// get date, day_abbr and holiday for the current schedule
+	// used while createing/editing the schedule for an employee in components/schedule_edit_modal.blade.php 
+	// and components/schedule_create_modal.blade.php 
 	public function getScheduleDays() 
 	{
 		$schedule_id = session()->get('schedule_id');
-		$query = "SELECT d.id as day_id, sd.date, d.day_abbr
+		$query = "SELECT d.id as day_id, sd.date, d.day_abbr, 
+					h.name as holiday
 				FROM  schedule_dates sd 
 				INNER JOIN days d ON sd.day_id = d.id 
-				WHERE sd.schedule_id = '$schedule_id'";
+				LEFT JOIN holiday h ON sd.date = h.date
+				WHERE sd.schedule_id = '$schedule_id'
+				ORDER BY day_id
+				";
 		$scheduleDays =  DB::select( DB::raw($query)); 		
 		return $scheduleDays;
 	
@@ -884,6 +901,27 @@ class ScheduleController extends Controller
 		// download PDF file with download method
 		$filename = 'AllStoresSchedule_' . $schedule->start_date . ".pdf";
 		return $pdf->download( $filename);
+	}
+	
+	
+	
+	public function deleteSchedule($schedule_id)
+	{
+		// delete all records related to a schedule
+		$query = "DELETE  es, ess
+			FROM employee_schedules es 
+			LEFT JOIN employee_schedules_summary ess ON  ess.schedule_id = es.schedule_id AND es.ess_id = ess.id
+			WHERE es.schedule_id = '$schedule_id'
+			";
+		DB::statement($query);
+		$query = "
+			DELETE s, sd
+			FROM schedules s
+			INNER JOIN schedule_dates sd ON s.id = sd.schedule_id
+			WHERE s.id = '$schedule_id'";
+		DB::statement($query);
+		return "Schedule deleted";
+		
 	}
 
 }	

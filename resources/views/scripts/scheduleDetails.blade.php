@@ -53,7 +53,6 @@
 							$('#createUserName').text(emplSchedule[0].name);
 							$('#min_hours').text(emplSchedule[0].min_hours);
 							$('#max_hours').text(emplSchedule[0].max_hours);
-						//	console.log(emplSchedule);
 							
 							// Update default store for each day
 							emplSchedule.forEach((element,index) => {
@@ -61,6 +60,8 @@
 								$('#store_id_' +element_index ).val(element.store_id); 
 								$('#starttime_' +element_index ).val(element.starttime);
 								$('#endtime_' +element_index ).val(element.endtime);
+								$('#vacation_' +element_index ).text(element.vacation);
+								
 								checkDayData(element_index);
 							}  );
 							updateWeeklyHours();
@@ -294,6 +295,8 @@
 				'user_id' :user_id,
 			},
 			success: function(emplSchedule){
+				
+				
 				if (emplSchedule)
 				{
 					hoursData = [];
@@ -301,14 +304,15 @@
 					$('#editUserName').text(emplSchedule[0].name);
 					$('#edit_min_hours').text(emplSchedule[0].min_hours);
 					$('#edit_max_hours').text(emplSchedule[0].max_hours);
-				//	console.log(emplSchedule);
 					
 					// Update default store for each day
 					emplSchedule.forEach((element,index) => {
 						let element_index = index+1;
+						
 						$('#edit_starttime_' +element_index ).val(element.starttime);
 						$('#edit_endtime_' +element_index ).val(element.endtime);
 						$('#edit_store_id_' +element_index ).val(element.store_id); 
+						$('#edit_vacation_' +element_index ).text(element.vacation);
 						if ( typeof element.endtime == 'string' && typeof element.starttime == 'string' )
 						{
 							hoursData[element_index] = timeDiff_minutes(element.endtime,element.starttime);

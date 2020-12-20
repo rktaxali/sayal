@@ -108,7 +108,10 @@ Route::post('/updadeUserScheduleData',[ScheduleController::class,'updadeUserSche
 Route::post('/deleteUserScheduleData',[ScheduleController::class,'deleteUserScheduleData'])->name('schedule.userSchedule');	
 Route::post('/saveAsDefaultSchedule',[ScheduleController::class,'saveAsDefaultSchedule'])->name('schedule.saveAsDefault');	
 Route::post('/submitForApproval',[ScheduleController::class,'submitForApproval'])->name('schedule.submitForApproval');	
-Route::post('/approveSchedule',[ScheduleController::class,'approveSchedule'])->name('schedule.approveSchedule');	
+Route::post('/approveSchedule',[ScheduleController::class,'approveSchedule'])->name('schedule.approveSchedule');
+// temporary
+Route::get('/deleteSchedule/{schedule_id}',[ScheduleController::class,'deleteSchedule'])->name('schedule.deleteSchedule');
+
 
 // test 
 Route::get('/sendUserEmail',[ScheduleController::class,'sendUserEmail'])->name('schedule.sendUserEmail');
