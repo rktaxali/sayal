@@ -25,6 +25,7 @@
 								<th>Approve Schedule</th>
 								<th>View All Schedule</th>
                                 <th>View Store Schedule</th>
+                                <th>Holiday/Vacation</th>
                             </tr>
 
                             @foreach ($users as $user)
@@ -63,6 +64,13 @@
                                     <td>
                                         <input type="checkbox" id="view_store_schedule_{{$user->id}}" name="view_store_schedule_{{$user->id}}" 
                                             @if($user->view_store_schedule) Checked @endif 
+                                            value="1">       
+                                    </td>
+
+                                    <td>
+                                        <input type="checkbox" id="holiday_vacation_{{$user->id}}" 
+                                                name="holiday_vacation_{{$user->id}}" 
+                                            @if($user->holiday_vacation) Checked @endif 
                                             value="1">       
                                     </td>
                                     

@@ -86,9 +86,9 @@
                                 <a href="{{ route('user.schedules')}}" class="nav-link">Home</a>
                             </li>
 							
-							@can('create_user')
+							@can('holiday_vacation')
 								 <li class="nav-item dropdown">
-									<a href="{{ route('user.list')}}" class="nav-link">Manage Users</a>
+									<a href="{{ route('holiday.list')}}" class="nav-link">Holidays</a>
 								</li>
 							@endcan
                             
@@ -144,6 +144,7 @@
                                     @if (Route::has('register')) 
                                         @can('create_user')
                                             <a class="dropdown-item" href="{{ route('register') }}">Create User</a>
+                                            <a class="dropdown-item"  href="{{ route('user.list')}}" >Manage Users</a>
                                         @endcan
                                     @endif
 									

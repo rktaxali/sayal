@@ -10,9 +10,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\FullCalendarEventMasterController;
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\HolidayController;
 
 
-use App\Http\Controllers\TaskController;
 
 
 
@@ -76,7 +76,6 @@ Route::get('/notAuthorized', function(){
 Route::get('/permission',[PermissionController::class,'index'])->name('permission.index');
 Route::post('/permission',[PermissionController::class,'store'])->name('permission.store');  // update permissions data
 
-Route::get('/task/create',[TaskController::class,'create'])->name('task.create');
 
 // Schedules
 Route::get('/schedule',[ScheduleController::class,'index'])->name('schedule.index');
@@ -124,4 +123,9 @@ Route::get('/createStoreSchedulePDF/{schedule_id}', [ScheduleController::class, 
 //Route::post('/createStoreSchedulePDF', [ScheduleController::class, 'createStoreSchedulePDF'])->name('schedule.createStoreSchedulePDF');
 Route::get('/createAllEmployeesSchedulePDF/{schedule_id}', [ScheduleController::class, 'createAllEmployeesSchedulePDF'])->name('schedule.createAllEmployeesSchedulePDF');
 Route::get('/createAllStoresSchedulePDF/{schedule_id}', [ScheduleController::class, 'createAllStoresSchedulePDF'])->name('schedule.createAllStoresSchedulePDF');
+
+// Holidays 
+Route::get('/holiday',[HolidayController::class,'index'])->name('holiday.list');	 
+Route::post('/deleteHoliday',[HolidayController::class,'deleteHoliday'])->name('holiday.deleteHoliday'); 
+Route::post('/createHoliday',[HolidayController::class,'createHoliday'])->name('holiday.createHoliday'); 
 

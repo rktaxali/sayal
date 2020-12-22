@@ -47,6 +47,14 @@ class ScheduleController extends Controller
 	// display 4 lateset schedules for the logged in user or the passed user_id
 	public function userSchedules($user_id = null)
 	{
+		/*
+		app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+		if(auth()->user()->hasPermissionTo('holiday_vacation') )
+		{
+			dd("Has access");
+		}
+		*/
+		
 		$user_id = $user_id ? $user_id : auth()->user()->id; 
 		$empl_type =  auth()->user()->empl_type;
 		$showSchedule = $empl_type === 'Store' || $empl_type ==='Warehouse' || $empl_type === 'Store/Warehouse';
