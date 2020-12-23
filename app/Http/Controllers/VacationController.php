@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Holiday;
+use App\Models\Vacation;
+use App\Models\User;
 use Redirect,Response;
 
 
-class HolidayController extends Controller
+class VacationController extends Controller
 {
     public function __construct()
     {
@@ -17,14 +18,14 @@ class HolidayController extends Controller
 	// returns  holidays for the current year oward for edit/delete
 	public function index()
 	{
-       
 		if(auth()->user()->hasPermissionTo('holiday_vacation') )
        {
-			
-            $holidays = Holiday::where('year','>=',date('Y'))
-                    ->orderBy('date')
-					->get();
-			return view('holiday',compact('holidays'));
+            $users = User::orderBy('name')->get();
+         
+         //   $vacations = Vacation::where('year','>=',date('Y'))
+          //          ->orderBy('date')
+			//		->get();
+			return view('vacation',compact('users'));
        }
        else
        {
@@ -33,24 +34,48 @@ class HolidayController extends Controller
     }
     
 
-	public function deleteHoliday(Request $request)
+/*
+    public function index($exclueNonStore_warehouse_Staff=false )
+	{
+		// displays list of users 
+		if (auth()->user()->hasPermissionTo('create_user'))
+		{
+			// get list of users and pass it to the userlist view
+			if( $exclueNonStore_warehouse_Staff)
+			{
+				$users = User::where('empl_type','<>','Front Office')->orderBy('name')->get();
+			}
+			else
+			{
+				$users = User::orderBy('name')->get();
+			}
+			
+			return view('userlist',compact('users','exclueNonStore_warehouse_Staff'));
+		}
+			
+		else
+			return view('notAuthorized');
+    }
+ */   
+
+	public function deleteVacation(Request $request)
     {
 		$retval = false;
 		if(auth()->user()->hasPermissionTo('holiday_vacation'))
         {
 			$id = $request->holiday_id;
-			Holiday::where('id',$id)->delete();
+			Vacation::where('id',$id)->delete();
 			$retval = true;
 		}
 		return Response::json($retval);
     }
     
-    public function createHoliday(Request $request)
+    public function createVacation(Request $request)
     {
         $retval = false;
 		if(auth()->user()->hasPermissionTo('holiday_vacation'))
         {
-            $holiday =  Holiday::create([
+            $holiday =  Vacation::create([
                 'name' => $request->name,
                 'date' => $request->date,
                 'year' => substr($request->date,0,4),

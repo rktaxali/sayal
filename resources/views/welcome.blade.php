@@ -39,7 +39,7 @@
                         </g>
                     </svg>
                     -->
-                    <img src="/images/SAYAL_Electronics&Hobbies2013_Logo_long.png" class="css-class" alt="Sayal Logo">
+                    <img src="/images/SAYAL_Electronics&Hobbies2013_Logo.png" class="css-class" alt="Sayal Logo">
 
                 </div>
 

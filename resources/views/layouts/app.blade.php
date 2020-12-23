@@ -58,7 +58,8 @@
                     <!--
                     {{ config('app.name', 'Laravel') }}
                     -->
-                    <img src="{{ asset('images/SAYAL_Electronics&Hobbies2013_Logo_long.png') }}" class="css-class" style="height:80px;" alt="Cota Logo">
+                    <img src="{{ asset('images/SAYAL_Electronics&Hobbies2013_Logo.png') }}" 
+                        class="css-class" style="height:65px;" alt="Sayal Logo">
                 </a>
 
 
@@ -89,6 +90,12 @@
 							@can('holiday_vacation')
 								 <li class="nav-item dropdown">
 									<a href="{{ route('holiday.list')}}" class="nav-link">Holidays</a>
+								</li>
+							@endcan
+
+                            @can('holiday_vacation')
+								 <li class="nav-item dropdown">
+									<a href="{{ route('vacation.list')}}" class="nav-link">Vacations</a>
 								</li>
 							@endcan
                             

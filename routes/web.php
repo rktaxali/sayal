@@ -11,6 +11,7 @@ use App\Http\Controllers\FullCalendarEventMasterController;
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\VacationController;
 
 
 
@@ -128,4 +129,7 @@ Route::get('/createAllStoresSchedulePDF/{schedule_id}', [ScheduleController::cla
 Route::get('/holiday',[HolidayController::class,'index'])->name('holiday.list');	 
 Route::post('/deleteHoliday',[HolidayController::class,'deleteHoliday'])->name('holiday.deleteHoliday'); 
 Route::post('/createHoliday',[HolidayController::class,'createHoliday'])->name('holiday.createHoliday'); 
+
+// vacations
+Route::get('/vacation',[VacationController::class,'index'])->name('vacation.list');	
 
