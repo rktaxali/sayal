@@ -20,6 +20,14 @@ class UserController extends Controller
 	public function __construct()
     {
 		$this->middleware('auth');
+		/*
+		if ( ! session()->get('pcre_jit'))
+		{
+			ini_set("pcre.jit", "0");
+			session()->put('pcre_jit', 1); 
+		}
+		*/
+		
     }
 	
 	
@@ -56,8 +64,12 @@ class UserController extends Controller
 		$user = User::find($id);
 		$stores = $this->getStoreCodes();
 		$emplTypes = $this->getEmplTypes();
-	//	dd($user);
-        return view('auth.edit',['user'=>$user, 'stores'=>$stores, 'emplTypes'=> $emplTypes  ]);
+		$emplStatus  =  $this->getStatusTypes();
+	//	dd($emplStatus, $user->status);
+		return view('auth.edit',['user'=>$user, 'stores'=>$stores,
+								 'emplTypes'=> $emplTypes, 
+								 'emplStatus'=> $emplStatus, 
+								 ]);
 	}
 	
 	
@@ -125,6 +137,7 @@ class UserController extends Controller
         $user->email = request('email');
 		$user->store_id = request('store_id');
 		$user->empl_type = request('empl_type');
+		$user->status = request('status');
         $user->save();
 	
 	return redirect('/userList')
@@ -161,6 +174,17 @@ class UserController extends Controller
 
 	}
 	
+
+	public static function getStatusTypes()
+	{
+		$staticTypes = [
+			'Active'=>'Active',
+			'Inactive'=>'Inactive',
+			'Archive'=>'Archive',
+		];
+	
+		return  $staticTypes;  
+	}
 
 	
 }

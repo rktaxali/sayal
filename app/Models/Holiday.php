@@ -15,7 +15,7 @@ class Holiday extends Model
         'year',
         'name',
         'date',
-        'created_user_id',
+        'create_user_id',
         'created_at',
     ];
 }

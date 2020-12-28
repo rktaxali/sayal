@@ -251,30 +251,30 @@
 
         if (ok) 
         {
-            jQuery.ajax({
-			url: "{{ url('/createHoliday') }}",
-			method: 'post',
-			data: {
-                "_token": "{{ csrf_token() }}",
-                'date' : holidayDate,
-                'name' : holidayName,
+          jQuery.ajax({
+            url: "{{ url('/createVacation') }}",
+            method: 'post',
+            data: {
+                      "_token": "{{ csrf_token() }}",
+                      'date' : holidayDate,
+                      'name' : holidayName,
 
-			},
-			success: function(response){
-				if (response)
-				{
-                    dispayAlerrtMessage(holidayName + " holiday added successfully.");
-                    setTimeout(() => {
-                        window.location.href ='/holiday';
-                    }, 3000);
-					
-				
-				}
-			},
-			error: function(data) {
-				console.log(data);
-				
-			}
+            },
+              success: function(response){
+            if (response)
+            {
+                        dispayAlerrtMessage(holidayName + " holiday added successfully.");
+                        setTimeout(() => {
+                            window.location.href ='/holiday';
+                        }, 3000);
+              
+            
+            }
+          },
+          error: function(data) {
+            console.log(data);
+            
+			    }
         });	 
         }
 

@@ -1,6 +1,6 @@
 <?php
 
-
+//ini_set("pcre.jit", "0");
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\clientController;
@@ -132,4 +132,10 @@ Route::post('/createHoliday',[HolidayController::class,'createHoliday'])->name('
 
 // vacations
 Route::get('/vacation',[VacationController::class,'index'])->name('vacation.list');	
+Route::post('/viewVacations',[VacationController::class,'viewVacations'])->name('vacation.viewVacations'); 
+Route::get('/viewVacations',[VacationController::class,'viewVacations'])->name('vacation.viewVacations'); 
+Route::post('/deleteVacation',[VacationController::class,'deleteVacation'])->name('vacation.deleteVacation'); 
+Route::post('/createVacation',[VacationController::class,'createVacation'])->name('vacation.createVacation'); 
+
+
 

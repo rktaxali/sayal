@@ -9,13 +9,15 @@ class Vacation extends Model
 {
     use HasFactory;
 
-    protected $table = 'Vacation';
+    protected $table = 'vacation';
 
     protected $fillable = [
+        'start_date',
+        'end_date',
         'year',
-        'name',
-        'date',
-        'created_user_id',
+        'user_id',
+        'create_user_id',
         'created_at',
+        'updated_at',
     ];
 }

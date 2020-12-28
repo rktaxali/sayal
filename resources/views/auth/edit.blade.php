@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-10">
             <div class="card">
                 <div class="card-header">{{ __('Edit User') }}  {{$user->firstname}}  {{$user->lastname}} </div>
 
@@ -12,7 +12,7 @@
                         @csrf
 
                         <div class="form-group row">
-                            <label for="firstname" class="col-md-2 col-form-label text-md-right">First Name</label>
+                            <label for="firstname" class="col-md-2 col-form-label text-md-left">First Name</label>
 
                             <div class="col-md-4">
                                 <input id="firstname" type="text" class="form-control @error('firstname') is-invalid @enderror" 
@@ -26,7 +26,7 @@
                                 @enderror
                             </div>
 							
-							<label for="lastname" class="col-md-2 col-form-label text-md-right">Last Name</label>
+							<label for="lastname" class="col-md-2 col-form-label text-md-left">Last Name</label>
 
                             <div class="col-md-4">
                                 <input id="lastname" type="text" class="form-control @error('lastname') is-invalid @enderror" 
@@ -48,7 +48,7 @@
       
 
                         <div class="form-group row">
-                            <label for="email" class="col-md-2 col-form-label text-md-right">{{ __('E-Mail') }}</label>
+                            <label for="email" class="col-md-2 col-form-label text-md-left">{{ __('E-Mail') }}</label>
 
                             <div class="col-md-4">
                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" 
@@ -63,7 +63,7 @@
                             </div>
 
                             @if ($stores)
-								<label for="store_id" class="col-md-2 col-form-label text-md-right">Default Store</label>
+								<label for="store_id" class="col-md-2 col-form-label text-md-left">Default Store</label>
 								<div class="col-md-4">
 									
 										<select name="store_id" id="store_id" 
@@ -85,7 +85,7 @@
 
                         <div class="form-group row">
                             @if ($emplTypes)
-								<label for="empl_type" class="col-md-2 col-form-label text-md-right">Empl Type</label>
+								<label for="empl_type" class="col-md-2 col-form-label text-md-left">Empl Type</label>
 								<div class="col-md-4">
 										<select name="empl_type" 
                                             id="empl_type"
@@ -99,11 +99,31 @@
 										</select>
 								</div>
 							@endif
+
+                            @if ($emplStatus)
+                                <!-- As select tag's options may not be available, therefore 
+                                     value for <select> does not work. It needs to be assigned 
+                                     after document is ready -->
+								<label for="status" class="col-md-2 col-form-label text-md-left">Status</label>
+								<div class="col-md-4">
+										<select name="status" 
+                                            id="status"
+                                            value= "{{ $user->status }}" 
+                                             class="form-control" >
+										    @foreach($emplStatus as $key=>$val )
+                                                <option value="{{  $key}}">
+                                                    {{ $val}}
+                                                </option>
+											@endforeach
+										</select>
+								</div>
+                            @endif
+
                         </div>
 						
 
 	                  <div class="form-group row">
-                            <label for="min_hours" class="col-md-2 col-form-label text-md-right">Min Hours</label>
+                            <label for="min_hours" class="col-md-2 col-form-label text-md-left">Min Hours</label>
 
                             <div class="col-md-4">
                                 <input id="min_hours" type="text" class="form-control @error('min_hours') is-invalid @enderror" 
@@ -118,7 +138,7 @@
                                 @enderror
                             </div>
 							
-							<label for="max_hours" class="col-md-2 col-form-label text-md-right">Max Hours</label>
+							<label for="max_hours" class="col-md-2 col-form-label text-md-left">Max Hours</label>
 
                             <div class="col-md-4">
                                 <input id="max_hours" type="text" class="form-control @error('max_hours') is-invalid @enderror" 
@@ -139,7 +159,7 @@
                         
 
                         <div class="form-group row mb-0">
-                            <div class="col-md-4 offset-md-4">
+                            <div class="col-md-12  text-md-right">
 							
 								<a href="{{ route('user.list') }}"   class="btn btn-secondary" role="button"   >Cancel</a>
 							  
@@ -164,6 +184,7 @@
 document.addEventListener("DOMContentLoaded", function(event) { 
      document.getElementById('store_id').value = "{{ $user->store_id}}";
      document.getElementById('empl_type').value = "{{ $user->empl_type}}";
+     document.getElementById('status').value = "{{ $user->status}}";
 });
 
 </script>

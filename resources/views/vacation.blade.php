@@ -15,13 +15,13 @@
             
             @if ( count($users)  )
                 <form id="viewUserVacations-form"
-                    action="{{ route('user.edit') }}" method="GET">
+                    action="{{ route('vacation.viewVacations') }}" method="POST">
                                 @csrf
                         <table class="table table-bordered table-responsive-lg">
                             <tr>
                                 <th>Name</th>
 								<th>Employee Type</th>
-                                <th>Edit</th>
+                                <th>Vacations</th>
                                
                             </tr>
 
@@ -36,9 +36,14 @@
                                     </td>
 									
 									<td>
-											<button type="submit" name="edit_user_id" value ="{{ $user->id }}"  class="btn btn-sm btn-secondary">
-											  	View Vacations
+											<button type="submit" 
+                                                name="view_vacation_user_id" 
+                                                value ="{{ $user->id }}"  
+                                                class="btn btn-sm btn-secondary">
+											    	View/Create
 											</button>
+
+                                            
                                     </td>  
 
                                     

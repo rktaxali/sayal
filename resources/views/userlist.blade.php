@@ -30,6 +30,7 @@
                             <tr>
                                 <th>Name</th>
 								<th>Employee Type</th>
+                                <th>Status</th>
                                 <th>Edit</th>
                                
                             </tr>
@@ -42,6 +43,10 @@
 									
                                     <td>
                                         {{ $user->empl_type }} 
+                                    </td>
+
+                                    <td>
+                                        {{ $user->status }} 
                                     </td>
 									
 									<td>

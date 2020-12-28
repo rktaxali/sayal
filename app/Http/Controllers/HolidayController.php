@@ -54,7 +54,7 @@ class HolidayController extends Controller
                 'name' => $request->name,
                 'date' => $request->date,
                 'year' => substr($request->date,0,4),
-                'created_user_id' => auth()->user()->id,
+                'create_user_id' => auth()->user()->id,
                 'created_at' =>  date('Y-m-d H:i:s'),
             ]);
             
