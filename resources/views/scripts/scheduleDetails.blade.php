@@ -180,7 +180,10 @@
 		let totalMinutes = 0 
 		for(let i=1; i <hoursData.length; i++)
 		{
-			totalMinutes += hoursData[i];
+			if (hoursData[i])
+			{
+				totalMinutes += hoursData[i];
+			}
 		}
 		let weeklyHours = (totalMinutes/60).toFixed(2);
 		$('#weeklyHours').text(weeklyHours);
@@ -422,7 +425,10 @@
 		let totalMinutes = 0 
 		for(let i=1; i <hoursData.length; i++)
 		{
-			totalMinutes += hoursData[i];
+			if (hoursData[i])
+			{
+				totalMinutes += hoursData[i];
+			}
 		}
 		let weeklyHours = (totalMinutes/60).toFixed(2);
 		$('#edit_weeklyHours').text(weeklyHours);

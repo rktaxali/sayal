@@ -123,6 +123,34 @@ class ScheduleController extends Controller
 	}
 
 
+	/**
+	 * Returns true if the schedule has been approved and then reopened and the employee's schedule 
+	 * was changed 
+	 */
+	public static function isEmplScheduleChanged( $schedule_id,$user_id)
+	{
+		$retVal = false; 
+		$query = "
+					SELECT if(s.schedule_approval_id IS NULL  && tmp.schedule_approval_id,TRUE, FALSE) As changed
+			FROM employee_schedules_summary s 
+			INNER JOIN (
+				SELECT MAX(schedule_approval_id) AS schedule_approval_id 
+				FROM employee_schedules_summary
+				WHERE schedule_id = $schedule_id AND schedule_approval_id IS NOT NULL
+				) tmp		# schedule has been approved at least once
+			WHERE schedule_id = $schedule_id AND user_id = $user_id";
+		$data = DB::select($query);
+		if ($data)
+		{
+			$row = $data[0];
+			$retVal = $row->changed;
+		}
+		
+		
+		return $retVal;
+	}
+
+
 
 	// returns schedules available to be approved
 	public function approveSubmittedSchedules()
@@ -181,16 +209,22 @@ class ScheduleController extends Controller
 			// fetch data from all active employees for all days for the selcted schedules 
 	
 			// display all active employees and an Add/Edit button 
-			$query = "SELECT u.id as user_id, concat(u.firstname, ' ', u.lastname) AS name, '' as schedule, 
-					u.min_hours, u.max_hours,
-					COUNT(s.id) AS howmany,
+			$query = "SELECT u.id as user_id,
+							 concat(u.firstname, ' ', u.lastname) AS name,
+							 '' as schedule, 
+							u.min_hours, 
+							u.max_hours,
+							if(ess.id IS NULL, 1,0) AS addEmplSchedule,
+							COUNT(s.id) AS howmany,
+					
 						0 as weekly_hours, 
 						'' as holiday
 						FROM users u
 						LEFT JOIN employee_schedules s ON u.id = s.user_id AND s.schedule_id = $schedule_id
+						LEFT JOIN employee_schedules_summary ess ON u.id = ess.user_id AND s.schedule_id = ess.schedule_id
 						WHERE u.`status` = 'active' 
 						     AND u.empl_type IN ('Store','Warehouse','Store/Warehouse')
-						GROUP BY u.id, 2,3,4,5";
+						GROUP BY u.id, 2,3,4,5,6";
 			$scheduleDetails = DB::select($query);
 			
 			if ($scheduleDetails)
@@ -200,6 +234,8 @@ class ScheduleController extends Controller
 				{
 					$scheduleDetails[$i]->weekly_hours = $this->getEmplScheduledHours($schedule_id,$scheduleDetails[$i]->user_id);
 					$scheduleDetails[$i]->schedule = $this->getEmplScheduleData($schedule_id, $scheduleDetails[$i]->user_id) ; // (! empty($schArray[$scheduleDetails[$i]->user_id]))  ? $schArray[$scheduleDetails[$i]->user_id] : '';
+					$scheduleDetails[$i]->isEmplScheduleChanged = $this->isEmplScheduleChanged($schedule_id, $scheduleDetails[$i]->user_id) ; 
+					
 				}
 			}
 
@@ -211,12 +247,15 @@ class ScheduleController extends Controller
 	
 
 	// Save $scheule_id in session 
+	// Mark approved_user_id & prepared_user_id null
 	public function save_schedule_id_in_Session(Request $request)
 	{
 		$retVal = false;
 		if ( $request->schedule_id)
 		{
-			session()->put('reopened_schedule_schedule_id', $request->schedule_id);  
+			session()->put('reopened_schedule_schedule_id', $request->schedule_id); 
+			Schedule::where('id',  $request->schedule_id)
+				->update(['approved_user_id' => null, 'prepared_user_id' => null]);
 			$retVal = true;
 		}
 		return Response::json($retVal);
@@ -500,10 +539,14 @@ class ScheduleController extends Controller
 				
 			}
 			// Update weekly_hours in the employee_schedules_summary table
+			// and set schedule_approval_id to null
 			DB::table('employee_schedules_summary')
 			  ->where('user_id', $user_id)
 			  ->where('schedule_id',$schedule_id)
-              ->update(['weekly_hours' => $this->getEmplScheduledHours( $schedule_id,$user_id)]);
+			  ->update(['weekly_hours' => $this->getEmplScheduledHours( $schedule_id,$user_id),
+						  'schedule_approval_id' => null,
+						  'schedule_accepted' => null,
+			  			]);
 
 			$retval = true;
 			 
@@ -565,6 +608,11 @@ class ScheduleController extends Controller
 	}
 
 
+	/**
+	 * Mark a schedule as approved. 
+	 * Update id of the user approving the scchedule in the schedule table 
+	 * Also create a record in the schedule_approval table
+	 */
 	
 	public function approveSchedule(Request $request)
 	{
@@ -574,6 +622,42 @@ class ScheduleController extends Controller
 			$schedule_id = $request->schedule_id;
 			$user_id =auth()->user()->id;
 			$retVal = Schedule::where('id', $schedule_id)->update(['approved_user_id' => $user_id]);
+			// create a record in the schedule_approval table
+			DB::table('schedule_approval')->insert( 
+				[
+					'schedule_id'  =>  $schedule_id,
+					'approved_user_id' =>  $user_id,
+					'approved_at' =>date('Y-m-d H:i:s'),
+					'created_at' =>date('Y-m-d H:i:s'),
+				]
+			);
+			$schedule_approval_id = DB::getPdo()->lastInsertId();
+			// update schedule_approval_id in employee_schedules_summary
+			$query = "UPDATE employee_schedules_summary 
+					SET  schedule_approval_id = $schedule_approval_id
+					WHERE schedule_id =  $schedule_id
+						AND schedule_approval_id IS NULL
+				";
+			DB::statement( $query );
+			// get count of approval records for the approvded schedule_id excluding $schedule_approval_id
+			// and, if this is second or later approval, accordingly, set approval_type to 'Revised - n'
+			$query = "SELECT count(*) as count 
+				FROM schedule_approval
+				WHERE schedule_id =  $schedule_id
+					AND id <> $schedule_approval_id
+				";
+			$result = DB::select( $query );
+			$row = $result[0];
+			$revised_count = $row->count;
+			if ($revised_count)
+			{
+				$query = "UPDATE schedule_approval 	
+						SET  approval_type = 'Revised - $revised_count'
+					WHERE id =  $schedule_approval_id 
+				";
+				DB::statement( $query );
+			}
+
 		}
 		return Response::json($retVal);
 	}
@@ -618,9 +702,12 @@ class ScheduleController extends Controller
 	{
 		// There are 4 Submit Buttons: stores_schedule_id, employees_schedule_id, downloadEmployeeSchedule &&  downloadAllStoresSchedule. 
 		// All contain schedule_id
+
+		
 		if ( ! empty($request->stores_schedule_id) )
 		{
 			$schedule_id = $request->stores_schedule_id;
+			$approvalType = $this->getScheduleApprovalType($schedule_id);
 			$schedule = Schedule::find($schedule_id);
 			$stores = DB::select('Select * from stores');
 			$store_schedules = [];
@@ -632,11 +719,12 @@ class ScheduleController extends Controller
 				$stores[$i]->schedule = $store_schedule;
 				$i++;
 			}
-			return view('viewAllStoresSchedule',compact('schedule','stores'));
+			return view('viewAllStoresSchedule',compact('schedule','stores','approvalType'));
 		}
 		elseif  ( ! empty($request->employees_schedule_id) )
 		{
 			$schedule_id = $request->employees_schedule_id;
+			$approvalType = $this->getScheduleApprovalType($schedule_id);
 			$schedule = Schedule::find($schedule_id);
 			// Display schedule for each employee 
 			//$schedule = Schedule::where('id','=',$schedule_id)->get()->first();
@@ -663,7 +751,7 @@ class ScheduleController extends Controller
 
 
 			$scheduleDays = $this->getScheduleDays();
-			return view('viewScheduleDetailsEmployees',compact('schedule','scheduleDetails','scheduleDays'));
+			return view('viewScheduleDetailsEmployees',compact('schedule','scheduleDetails','scheduleDays','approvalType'));
 		}
 		elseif ( ! empty($request->downloadEmployeeSchedule)) 
 		{
@@ -678,6 +766,25 @@ class ScheduleController extends Controller
 			return redirect('/createAllStoresSchedulePDF/'.$schedule_id);
 		}
 		
+	}
+
+
+	// Returns schedule approval_type as Original or Revised
+	public function getScheduleApprovalType($schedule_id)
+	{
+		$retVal = '';
+		$query = "SELECT approval_type
+				FROM schedule_approval 
+				WHERE schedule_id = '$schedule_id'
+				ORDER BY id desc limit 1 
+			";
+		
+		$result = DB::select($query);
+		if ($result)
+		{
+			$retVal = $result[0]->approval_type;
+		}
+		return $retVal;
 	}
 
 
@@ -703,6 +810,7 @@ class ScheduleController extends Controller
 		if (! empty( $request->viewStoreSchedule))
 		{
 			$schedule_id = $request->viewStoreSchedule; 
+			$approvalType = $this->getScheduleApprovalType($schedule_id);
 			$store_id = auth()->user()->store_id;
 
 			$schedule = Schedule::find($schedule_id);
@@ -713,7 +821,7 @@ class ScheduleController extends Controller
 
 			$schedule->store_schedule = $this->getStoreSchedule($schedule_id,$store_id);
 		
-			return view('viewSpecificStoresSchedule',compact('schedule'));	
+			return view('viewSpecificStoresSchedule',compact('schedule','approvalType'));	
 		}
 		elseif (! empty( $request->downloadStoreSchedule))
 		{
@@ -835,12 +943,13 @@ class ScheduleController extends Controller
 		
 		
 		$schedule = Schedule::find($schedule_id);
+		$approvalType = $this->getScheduleApprovalType($schedule_id);
 		$schedule->store_name = $store_name;
 		$schedule->store_schedule = $this->getStoreSchedule($schedule_id,$store_id);
 	
 		  // share data to view
-		  view()->share('pdfStoreSchedules',compact('schedule'));
-		  $pdf = PDF::loadView('pdfStoreSchedules', compact('schedule'));
+		  view()->share('pdfStoreSchedules',compact('schedule','approvalType'));
+		  $pdf = PDF::loadView('pdfStoreSchedules', compact('schedule','approvalType'));
 
 		  // download PDF file with download method
 		  $filename = 'Schedule_' . $store_name  .'_' . $schedule->start_date . ".pdf";
@@ -855,6 +964,7 @@ class ScheduleController extends Controller
 		//$schedule = Schedule::where('id','=',$schedule_id)->get()->first();
 		// fetch data from all active employees for all days for the selcted schedules 
 		
+		
 		// Get each active Employee  active employees and schedule accepted/pending icon 
 		$query = "SELECT u.id as user_id, concat(u.firstname, ' ', u.lastname) AS name, '' as schedule, 
 						0 as weekly_hours,u.max_hours, u.min_hours,
@@ -864,6 +974,7 @@ class ScheduleController extends Controller
 					WHERE u.`status` = 'active' AND u.empl_type in ('Store','Warehouse','Store/Warehouse')
 					";
 		$scheduleDetails = DB::select($query);
+		$approvalType = $this->getScheduleApprovalType($schedule_id);
 		if ($scheduleDetails)
 		{
 			// Update $scheduleDetails->schedule from $schArray
@@ -877,8 +988,8 @@ class ScheduleController extends Controller
 		$scheduleDays = $this->getScheduleDays();
 					
 			// share data to view
-		view()->share('pdfScheduleDetailsEmployees',compact('schedule','scheduleDetails','scheduleDays'));
-		$pdf = PDF::loadView('pdfScheduleDetailsEmployees', compact('schedule','scheduleDetails','scheduleDays'));
+		view()->share('pdfScheduleDetailsEmployees',compact('schedule','scheduleDetails','scheduleDays','approvalType'));
+		$pdf = PDF::loadView('pdfScheduleDetailsEmployees', compact('schedule','scheduleDetails','scheduleDays','approvalType'));
 
 		  // download PDF file with download method
 		  $filename = 'EmployeesSchedule_' . $schedule->start_date . ".pdf";
@@ -891,6 +1002,7 @@ class ScheduleController extends Controller
 	public function createAllStoresSchedulePDF($schedule_id)
 	{
 		$schedule = Schedule::find($schedule_id);
+		$approvalType = $this->getScheduleApprovalType($schedule_id);
 		$stores = DB::select('Select * from stores');
 		$store_schedules = [];
 		$i=0;
@@ -903,8 +1015,8 @@ class ScheduleController extends Controller
 		}
 		
 		// share data to view
-		view()->share('pdfAllStoresSchedule',compact('schedule','stores'));
-		$pdf = PDF::loadView('pdfAllStoresSchedule', compact('schedule','stores'));
+		view()->share('pdfAllStoresSchedule',compact('schedule','stores','approvalType'));
+		$pdf = PDF::loadView('pdfAllStoresSchedule', compact('schedule','stores','approvalType'));
 
 		// download PDF file with download method
 		$filename = 'AllStoresSchedule_' . $schedule->start_date . ".pdf";
@@ -915,17 +1027,13 @@ class ScheduleController extends Controller
 	
 	public function deleteSchedule($schedule_id)
 	{
-		// delete all records related to a schedule
-		$query = "DELETE  es, ess
-			FROM employee_schedules es 
-			LEFT JOIN employee_schedules_summary ess ON  ess.schedule_id = es.schedule_id AND es.ess_id = ess.id
-			WHERE es.schedule_id = '$schedule_id'
-			";
-		DB::statement($query);
 		$query = "
-			DELETE s, sd
+			DELETE s, sd, sa, es, ess
 			FROM schedules s
-			INNER JOIN schedule_dates sd ON s.id = sd.schedule_id
+			LEFT JOIN schedule_dates sd ON sd.schedule_id = s.id
+			left JOIN employee_schedules es ON es.schedule_id = s.id
+			LEFT JOIN employee_schedules_summary ess ON  ess.schedule_id =s.id 
+			LEFT JOIN schedule_approval sa ON s.id = s.id
 			WHERE s.id = '$schedule_id'";
 		DB::statement($query);
 		return "Schedule deleted";

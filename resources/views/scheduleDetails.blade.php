@@ -38,7 +38,7 @@
                           @foreach($schedule->schedule as $data)
                            
                               <div class="col-6">
-                                  <div class="row">
+                                  <div class="row   @if($schedule->isEmplScheduleChanged) text-danger @endif    ">
                                       <div class="col-3">{{ $data->date }}</div>
                                       <div class="col-4">{{ $data->starttime }} - {{ $data->endtime }}</div>
                                       <div class="col-3">{{ $data->store_name }}</div>
@@ -50,37 +50,46 @@
                         </div>
 
 									  </td>
-									<td style="padding:2px 5px 2px 5px">
-										@if( $schedule->howmany )
-											
+									  <td style="padding:2px 5px 2px 5px">
 
-											<span class="material-icons" 
-                          style="color:blue; cursor:pointer"  
-                          onClick="editSchedule({{ $schedule->user_id }})" >
-                            edit
-                      </span>
-											<span class="material-icons" 
-                          style="color:red; cursor:pointer" 
-                          onClick="deleteSchedule( '{{ $schedule->user_id  }}','{{ $schedule->name  }}'  )" >
-                              delete
-                      </span>
+                      @if( $schedule->addEmplSchedule)
+                        <span class="material-icons" style="color:green; cursor:pointer" onClick="createSchedule({{ $schedule->user_id }})" >add_circle</span>  
+                      @elseif( $schedule->howmany  )
+                        
 
-                      <br>
-                      <a href=""
-                          onClick="saveAsDefaultSchedule({{ $schedule->user_id }})" >
-                          Save as Default
-                      </a>
-												<div id="spinnerEdit" class="spinner-border text-primary ml-2" style="visibility:hidden"></div>
-										@else
-											<span class="material-icons" style="color:green; cursor:pointer" onClick="createSchedule({{ $schedule->user_id }})" >add_circle</span>
-											<div id="spinnerCreate_{{$schedule->user_id}}" class="spinner-border text-primary ml-2" 
-												style="visibility:hidden"></div>	
-										@endif	
-                                    </td>  
+                        <span class="material-icons" 
+                            style="color:blue; cursor:pointer"  
+                            onClick="editSchedule({{ $schedule->user_id }})" >
+                              edit
+                        </span>
+                        <span class="material-icons" 
+                            style="color:red; cursor:pointer" 
+                            onClick="deleteSchedule( '{{ $schedule->user_id  }}','{{ $schedule->name  }}'  )" >
+                                delete
+                        </span>
+
+                        <br>
+                        <a href=""
+                            onClick="saveAsDefaultSchedule({{ $schedule->user_id }})" >
+                            Save as Default
+                        </a>
+                          <div id="spinnerEdit" class="spinner-border text-primary ml-2" style="visibility:hidden"></div>
+                      @else
+                        <span class="material-icons" 
+                            style="color:blue; cursor:pointer"  
+                            onClick="editSchedule({{ $schedule->user_id }})" >
+                              edit
+                        </span>
+                        <div id="spinnerCreate_{{$schedule->user_id}}" class="spinner-border text-primary ml-2" 
+                          style="visibility:hidden"></div>	
+                      @endif	
+
+
+                  </td>  
 
                                     
                                     
-                                </tr>
+                </tr>
 							@endforeach
 							</tbody>
                            

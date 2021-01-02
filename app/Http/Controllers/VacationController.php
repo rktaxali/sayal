@@ -58,7 +58,7 @@ class VacationController extends Controller
 
 
 	/**
-	 * Returns vacation records for the current year and later for the passed user id
+	 * Returns vacation records for the last year   and later for the passed user id
 	 */
 	public function viewVacations(Request $request)
     {
@@ -68,7 +68,7 @@ class VacationController extends Controller
 			session()->put('view_vacation_user_id',$request->view_vacation_user_id);
 		}
 		$view_vacation_user_id = session()->get('view_vacation_user_id');
-		$year = date('Y');
+		$year = date('Y')-1;  // last year 
 		$vacations = Vacation::where('year','>=',$year)
 					->where('user_id',$view_vacation_user_id)
 					->orderBy('start_date')

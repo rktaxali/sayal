@@ -15,7 +15,7 @@
 		 <h2 class="text-center mb-3">Employees' Schedule for the  Week Starting {{$schedule->start_date }}</h2>
 
         @if($schedule->approved_user_id)
-			<h3>Status: Approved</h3>
+			<h3>Status: Approved - {{$approvalType}}</h3>
 		@else
 			<h3>Status: Not Approved</h3>
 		@endif

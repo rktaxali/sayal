@@ -9,6 +9,7 @@
             <div class="card">
                 <div class="card-header">
                    <h6>Schedule for the {{$schedule->store_name }} Store for Week Starting {{$schedule->start_date }} </h6>
+                   {{$approvalType}}
                 </div>
 
                     <div class="card-body">

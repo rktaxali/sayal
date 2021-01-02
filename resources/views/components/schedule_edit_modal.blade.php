@@ -63,7 +63,7 @@
 						</div>
 						
 						<div class="col-2">
-								Action
+								Action/Info
 						</div>
 					
 					</div>
@@ -81,7 +81,7 @@
 									name="edit_date_{{$sch->day_id}}" 
 									value="{{$sch->date}}" hidden  >
 								{{$sch->date}}  {{$sch->day_abbr}} 
-									&nbsp;&nbsp;{{$sch->holiday}}
+									&nbsp;&nbsp;<span class="text-info">{{$sch->holiday}}</span>
 							</div>
 						
 							
@@ -138,8 +138,9 @@
 									delete
 								</span>
 								
-								<span id="edit_sch_ok_{{$sch->day_id}}" class="material-icons text-success" style="display:none">check</span>
-								<span id="edit_vacation_{{$sch->day_id}}"></span>
+								<span id="edit_sch_ok_{{$sch->day_id}}" 
+									class="material-icons text-success" style="display:none">check</span>
+								<span id="edit_vacation_{{$sch->day_id}}" class="text-danger"></span>
 								
 							</div>
 						

@@ -5,6 +5,7 @@
   <div class="row justify-content-center">
       <div class="col-12">
           <h2>Employees' Schedule Details for Week Starting {{ $schedule->start_date }}</h2>
+          {{$approvalType}}
       </div>
   </div>
 

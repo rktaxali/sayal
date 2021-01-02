@@ -6,7 +6,7 @@
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">All Stores' Schedule for the week starting {{ $schedule->start_date}} </div>
+                <div class="card-header">All Stores' Schedule for the week starting {{ $schedule->start_date}} <br>{{$approvalType}} </div>
 
                     <div class="card-body">
                         @if (session('status'))

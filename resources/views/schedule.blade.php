@@ -204,6 +204,7 @@
        if (response)
        {
             // Save schedule_id in session and then submit the form
+            // 2. Make schedule.approved_user_id & prepared_user_id null  
             jQuery.ajax({
                 url: "{{ url('/save_schedule_id_in_Session') }}",
                 method: 'post',
