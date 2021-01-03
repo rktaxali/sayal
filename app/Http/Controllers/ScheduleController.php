@@ -812,16 +812,25 @@ class ScheduleController extends Controller
 			$schedule_id = $request->viewStoreSchedule; 
 			$approvalType = $this->getScheduleApprovalType($schedule_id);
 			$store_id = auth()->user()->store_id;
-
-			$schedule = Schedule::find($schedule_id);
-			// get store name
-			$store = DB::select("SELECT  `name` FROM stores where id = '$store_id ' ");
-			$row = $store[0];
-			$schedule->store_name = $row->name;
-
-			$schedule->store_schedule = $this->getStoreSchedule($schedule_id,$store_id);
-		
-			return view('viewSpecificStoresSchedule',compact('schedule','approvalType'));	
+			if ($store_id)
+			{
+				$schedule = Schedule::find($schedule_id);
+				// get store name
+				$store = DB::select("SELECT  `name` FROM stores where id = '$store_id ' ");
+				$row = $store[0];
+				$schedule->store_name = $row->name;
+	
+				$schedule->store_schedule = $this->getStoreSchedule($schedule_id,$store_id);
+				$noAssignedStore = false;
+				return view('viewSpecificStoresSchedule',compact('schedule','approvalType','noAssignedStore'));	
+			}
+			else
+			// logged in user has no assigned store
+			{
+				$noAssignedStore = true;
+				$schedule = [];
+				return view('viewSpecificStoresSchedule',compact('noAssignedStore','approvalType'));
+			}
 		}
 		elseif (! empty( $request->downloadStoreSchedule))
 		{
