@@ -19,7 +19,7 @@
 						@if ($showSchedule)
 							<div class="row">
 								@foreach($schedules as $schedule)
-									<div class="col-5 m-1">
+									<div class="col-sm-11 col-lg-5 m-1">
 										<div class="row border" >
 											<div class="col-12"> 
 												<div class="row">

@@ -18,9 +18,9 @@
                                 @csrf
                         <table class="table table-bordered table-responsive-lg">
                             <tr>
-                                <th>Week Starting</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th width="30%">Week Starting</th>
+                                <th width="30%">Status</th>
+                                <th  width="40%">Action</th>
                                
                             </tr>
 
@@ -53,7 +53,7 @@
 												View
 											</button>
 										 </div>
-										<div class="float-left ml-4 "> 
+										<div class="float-left ml-1 "> 
 										
 											<button type="submit"
 													name="downloadStoreSchedule"

@@ -16,12 +16,12 @@
                 <form id="schedule-form"
                     action="{{ route('schedule.viewDetails') }}" method="POST">
                                 @csrf
-                        <table class="table table-bordered table-responsive-lg">
+                      
+                         <table class="table table-bordered table-responsive-lg">
                             <tr>
-                                <th>Week Starting</th>
-                                <th>Status</th>
-                                <th>View</th>
-                               
+                                <th width="25%">Week Starting</th>
+                                <th width="15%">Status</th>
+                                <th width="65%">View</th>
                             </tr>
 
 							@foreach ($schedules as $schedule)
@@ -40,72 +40,67 @@
                                         @else
                                             Being Prepared
                                         @endif
-
-                                        
                                     </td>
                                     
 									<td>
-                                        <button type="submit" 
-                                                name="stores_schedule_id"
-                                                value = "{{$schedule->id}}"
-                                                class="btn btn-primary">
-                                                Stores' Schedule
-                                        </button>
-										
-										<button type="submit"
-													name="downloadAllStoresSchedule"
-													id="downloadAllStoresSchedule"
-													class="btn btn-default"
-													value = "{{$schedule->id}}"
-													 >
-
-											
-												<span 
-													class="material-icons text-success"
-													
-													title="Download" style="font-size: 32px; cursor: pointer; margin-top:-4px;">
-												get_app
-												</span>
-										</button>
-										
-										
-
-                                        <button type="submit" 
-                                                name="employees_schedule_id"
-                                                value = "{{$schedule->id}}"
-                                                class="btn btn-primary ml-5"
-												
-												>
-                                                Employees' Schedule
-                                        </button>
-										
-										<button type="submit"
-													name="downloadEmployeeSchedule"
-													id="downloadStoreSchedule"
-													class="btn btn-default"
-													value = "{{$schedule->id}}"
-													 >
-
-											
-												<span 
-													class="material-icons text-success"
-													
-													title="Download" style="font-size: 32px; cursor: pointer; margin-top:-4px;">
-												get_app
-												</span>
-										</button>
-										
-										
+                                        <div style="float:left;" >
+                                            <button type="submit" 
+                                                    name="stores_schedule_id"
+                                                    value = "{{$schedule->id}}"
+                                                    class="btn btn-primary">
+                                                    Stores' Schedule
+                                            </button>
+                                            
+                                            <button type="submit"
+                                                        name="downloadAllStoresSchedule"
+                                                        id="downloadAllStoresSchedule"
+                                                        class="btn btn-default"
+                                                        value = "{{$schedule->id}}"
+                                                        >
+                                    
+                                                    <span 
+                                                        class="material-icons text-success mr-4"
+                                                            title="Download" 
+                                                            style="font-size: 32px; 
+                                                            cursor: pointer; margin-top:-4px;">
+                                                        get_app
+                                                    </span>
+                                            </button>
+                                        
+                                        </div>
+                                            
+                                        <div style="float:left;" >
+                                            <button type="submit" 
+                                                    name="employees_schedule_id"
+                                                    value = "{{$schedule->id}}"
+                                                    class="btn btn-primary"
+                                                    
+                                                    >
+                                                    Employees' Schedule
+                                            </button>
+                                            
+                                            <button type="submit"
+                                                        name="downloadEmployeeSchedule"
+                                                        id="downloadStoreSchedule"
+                                                        class="btn btn-default"
+                                                        value = "{{$schedule->id}}"
+                                                        >
+                                                
+                                                    <span 
+                                                        class="material-icons text-success"
+                                                        
+                                                        title="Download" 
+                                                            style="font-size: 32px; cursor: pointer; margin-top:-4px;">
+                                                                get_app
+                                                    </span>
+                                            </button>
+                                        </div>
                                     </td>  
-
-                                    
-                                    
                                 </tr>
 							@endforeach
                            
                         </table>
 
-                      
                 </form>
 				
 				

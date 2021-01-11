@@ -252,7 +252,7 @@
         if (ok) 
         {
           jQuery.ajax({
-            url: "{{ url('/createVacation') }}",
+            url: "{{ url('/createHoliday') }}",
             method: 'post',
             data: {
                       "_token": "{{ csrf_token() }}",
@@ -266,7 +266,7 @@
                         dispayAlerrtMessage(holidayName + " holiday added successfully.");
                         setTimeout(() => {
                             window.location.href ='/holiday';
-                        }, 3000);
+                        }, 2000);
               
             
             }
