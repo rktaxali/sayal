@@ -97,30 +97,52 @@
 								</li>
 							@endcan
                             
-                            @can('view_all_schedules')
-								 <li class="nav-item dropdown">
-									<a href="{{ route('schedule.viewAllSchedules')}}" class="nav-link">View Schedules</a>
-								</li>
-							@endcan
+                                           
 
-                            @can('view_store_schedule')
-								 <li class="nav-item dropdown">
-									<a href="{{ route('schedule.viewStoreSchedule')}}" class="nav-link">Store Schedule</a>
-								</li>
-							@endcan
+                            <!-- Schedules -->
+                           @if(auth()->user()->hasPermissionTo('view_all_schedules')  || 
+                                    auth()->user()->hasPermissionTo('create_store_schedule')  ||
+                                    auth()->user()->hasPermissionTo('aprv_schedule') ||
+                                    auth()->user()->hasPermissionTo('view_store_schedule')
+                                )
+                            <li class="nav-item dropdown">
+                                <a  class="nav-link dropdown-toggle"
+                                    id="navbarDropdown"
+                                         href="#" 
+                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                   Schedule
+                                </a>
 
-							@can('create_store_schedule')
-								 <li class="nav-item dropdown">
-									<a href="{{ route('schedule.index')}}" class="nav-link">Manage Schedules</a>
-								</li>
-							@endcan
+                                
 
-                            @can('aprv_schedule')
-								 <li class="nav-item dropdown">
-									<a href="{{ route('schedule.approveSubmittedSchedules')}}" class="nav-link">Approve Schedules</a>
-								</li>
-							@endcan
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                   
+                                    @can('view_store_schedule')
+                                        <a class="dropdown-item" href="{{ route('schedule.viewStoreSchedule')}}" >
+                                            View Store Schedules</a>
+                                    @endcan
+                                   
+                                    @can('view_all_schedules')
+                                        <a class="dropdown-item" href="{{ route('schedule.viewAllSchedules')}}" >
+                                            View All Schedules</a>
+                                    @endcan
 
+                                    @can('create_store_schedule')
+                                        <a class="dropdown-item" href="{{ route('schedule.index')}}" >Manage Schedules</a>
+							        @endcan
+
+                                    @can('aprv_schedule')
+                                        <a class="dropdown-item" href="{{ route('schedule.approveSubmittedSchedules') }}">Approve Schedules</a>
+                                    @endcan
+
+
+                                   
+                                </div>
+
+
+                            </li>
+
+                            @endif
                                                      
                             <li class="nav-item dropdown">
                                 <a  class="nav-link dropdown-toggle"
